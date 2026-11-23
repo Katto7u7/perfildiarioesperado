@@ -1,0 +1,162 @@
+{
+  "razon_cruda_impar_par_todos": 2.5272323232431133,
+  "razon_cruda_impar_par_dias_sin_dispersion": 1.203278437782822,
+  "razon_cruda_dia_AM_vs_sin_dispersion": 2.7450283763047336,
+  "efecto_regimen_en_dias_sin_dispersion_pct": 44.905254593271195,
+  "p": 6.78636259277021e-05,
+  "ic95": "[20.7, 73.9]",
+  "n_fechas_sin_dispersion": 93,
+  "efecto_regimen_condicional_modelo_completo_pct": 43.63744980755217,
+  "p_condicional": 0.0007255688447621608,
+  "ventana_perfil": [
+    {
+      "estadistico": "media",
+      "ventana": "R_MISMO_126",
+      "err_log_mediano": 0.25819198824379586,
+      "wape": 0.2996313892953376,
+      "sesgo": 0.016968817244265067,
+      "meses_ganados": 8
+    },
+    {
+      "estadistico": "media",
+      "ventana": "R_MISMO_12M",
+      "err_log_mediano": 0.25783151596139825,
+      "wape": 0.2986461264608279,
+      "sesgo": 0.01976873462520598,
+      "meses_ganados": 2
+    },
+    {
+      "estadistico": "media",
+      "ventana": "V120",
+      "err_log_mediano": 0.6226583174444199,
+      "wape": 0.7666649135407692,
+      "sesgo": 0.3298506779625918,
+      "meses_ganados": 0
+    },
+    {
+      "estadistico": "media",
+      "ventana": "V180",
+      "err_log_mediano": 0.6272968065072713,
+      "wape": 0.7592105377230777,
+      "sesgo": 0.2986658270432141,
+      "meses_ganados": 0
+    },
+    {
+      "estadistico": "media",
+      "ventana": "V250",
+      "err_log_mediano": 0.6095378718184448,
+      "wape": 0.7253128901314999,
+      "sesgo": 0.26535140837779514,
+      "meses_ganados": 0
+    },
+    {
+      "estadistico": "p90",
+      "ventana": "R_MISMO_126",
+      "err_log_mediano": 0.312407977047713,
+      "wape": 0.4039005853591931,
+      "sesgo": 0.12531958686973216,
+      "meses_ganados": 8
+    },
+    {
+      "estadistico": "p90",
+      "ventana": "R_MISMO_12M",
+      "err_log_mediano": 0.3123311635932614,
+      "wape": 0.4017323064629987,
+      "sesgo": 0.12640897699748227,
+      "meses_ganados": 2
+    },
+    {
+      "estadistico": "p90",
+      "ventana": "V120",
+      "err_log_mediano": 0.610917518185202,
+      "wape": 0.8870346439618189,
+      "sesgo": 0.6113656651828843,
+      "meses_ganados": 0
+    },
+    {
+      "estadistico": "p90",
+      "ventana": "V180",
+      "err_log_mediano": 0.6045565853923202,
+      "wape": 0.8610840546072491,
+      "sesgo": 0.580446608329094,
+      "meses_ganados": 0
+    },
+    {
+      "estadistico": "p90",
+      "ventana": "V250",
+      "err_log_mediano": 0.5947724991913865,
+      "wape": 0.8414656317904807,
+      "sesgo": 0.5653859314294851,
+      "meses_ganados": 0
+    },
+    {
+      "estadistico": "p95",
+      "ventana": "R_MISMO_126",
+      "err_log_mediano": 0.3704292210879281,
+      "wape": 0.509900622716673,
+      "sesgo": 0.27713006229483894,
+      "meses_ganados": 6
+    },
+    {
+      "estadistico": "p95",
+      "ventana": "R_MISMO_12M",
+      "err_log_mediano": 0.36947837215711465,
+      "wape": 0.5078865715278478,
+      "sesgo": 0.2770684396202898,
+      "meses_ganados": 1
+    },
+    {
+      "estadistico": "p95",
+      "ventana": "V120",
+      "err_log_mediano": 0.6036060985272482,
+      "wape": 0.8965412018176503,
+      "sesgo": 0.6600607990385777,
+      "meses_ganados": 2
+    },
+    {
+      "estadistico": "p95",
+      "ventana": "V180",
+      "err_log_mediano": 0.5952651744970604,
+      "wape": 0.8779285909545658,
+      "sesgo": 0.6487572752125089,
+      "meses_ganados": 0
+    },
+    {
+      "estadistico": "p95",
+      "ventana": "V250",
+      "err_log_mediano": 0.586702877489896,
+      "wape": 0.8626074131347592,
+      "sesgo": 0.6475460852481972,
+      "meses_ganados": 1
+    }
+  ],
+  "R_MISMO_126_vs_V180": {
+    "media": {
+      "dif_media": -0.36910481826347546,
+      "ic95": [
+        -0.44036434533168506,
+        -0.29960040641113034
+      ],
+      "meses_R_mejor": 10,
+      "n": 10
+    },
+    "p90": {
+      "dif_media": -0.2921486083446071,
+      "ic95": [
+        -0.4548511499988612,
+        -0.13505815242558966
+      ],
+      "meses_R_mejor": 10,
+      "n": 10
+    },
+    "p95": {
+      "dif_media": -0.22483595340913237,
+      "ic95": [
+        -0.3706201841314572,
+        -0.08795250929625881
+      ],
+      "meses_R_mejor": 10,
+      "n": 10
+    }
+  }
+}

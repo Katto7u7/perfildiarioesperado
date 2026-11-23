@@ -1,0 +1,41 @@
+{
+  "filas": 22313,
+  "programas": {
+    "7": 22008,
+    "6": 305
+  },
+  "eventos": 28,
+  "sucursales": 2589,
+  "rango_evento": [
+    20260615,
+    20261120
+  ],
+  "estatus": {
+    "pendiente": 22313
+  },
+  "adelanto_solicitud_evento_dias": {
+    "count": 22313.0,
+    "mean": 4.2,
+    "std": 6.4,
+    "min": -9.0,
+    "25%": 1.0,
+    "50%": 5.0,
+    "75%": 7.0,
+    "max": 70.0
+  },
+  "pct_retiro_LEEN_LCEN_en_ventana_evento": 0.40638901567076113,
+  "plan_vs_real": {
+    "n": 12912,
+    "spearman": 0.5890080715970183,
+    "razon_suma_real_plan": 0.6746311573936752,
+    "mediana_razon_por_sucursal": 0.6666666666666666
+  },
+  "residuo_dias_evento": {
+    "n_evento": 75520,
+    "media_resid_evento": 0.12732112579431223,
+    "media_resid_no_evento": -0.025593372453068933,
+    "efecto_pct": 16.522534587412952,
+    "mannwhitney_p": 3.0719233064974635e-293
+  },
+  "dosis_respuesta_spearman": 0.16504069761424858
+}

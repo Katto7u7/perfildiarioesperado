@@ -1,0 +1,806 @@
+{
+  "cortes": [
+    20260130,
+    20260227,
+    20260331,
+    20260430,
+    20260529,
+    20260630,
+    20260731,
+    20260831,
+    20260930
+  ],
+  "n_filas": 27369,
+  "validez_predictiva": [
+    {
+      "indicador": "dias_cobertura_promedio",
+      "realizado_t+20": "real_cobertura",
+      "spearman": 0.898,
+      "spearman_min_por_corte": 0.817,
+      "spearman_max_por_corte": 0.943,
+      "n": 27355
+    },
+    {
+      "indicador": "retiro_promedio_diario",
+      "realizado_t+20": "real_retiro_medio",
+      "spearman": 0.873,
+      "spearman_min_por_corte": 0.775,
+      "spearman_max_por_corte": 0.946,
+      "n": 27369
+    },
+    {
+      "indicador": "velocidad_consumo_promedio",
+      "realizado_t+20": "real_retiro_medio",
+      "spearman": 0.862,
+      "spearman_min_por_corte": 0.74,
+      "spearman_max_por_corte": 0.941,
+      "n": 27365
+    },
+    {
+      "indicador": "velocidad_consumo_p90",
+      "realizado_t+20": "real_retiro_medio",
+      "spearman": 0.854,
+      "spearman_min_por_corte": 0.748,
+      "spearman_max_por_corte": 0.937,
+      "n": 27365
+    },
+    {
+      "indicador": "dias_cobertura_p90",
+      "realizado_t+20": "real_cobertura",
+      "spearman": 0.795,
+      "spearman_min_por_corte": 0.591,
+      "spearman_max_por_corte": 0.912,
+      "n": 27355
+    },
+    {
+      "indicador": "score_volatilidad",
+      "realizado_t+20": "real_vol_residual",
+      "spearman": 0.703,
+      "spearman_min_por_corte": 0.519,
+      "spearman_max_por_corte": 0.803,
+      "n": 27369
+    },
+    {
+      "indicador": "indice_agresividad_consumo",
+      "realizado_t+20": "real_agresividad",
+      "spearman": 0.675,
+      "spearman_min_por_corte": 0.443,
+      "spearman_max_por_corte": 0.641,
+      "n": 27259
+    },
+    {
+      "indicador": "pct_dias_saldo_critico",
+      "realizado_t+20": "real_tasa_critico",
+      "spearman": 0.497,
+      "spearman_min_por_corte": 0.281,
+      "spearman_max_por_corte": 0.619,
+      "n": 27369
+    },
+    {
+      "indicador": "score_riesgo_desabasto",
+      "realizado_t+20": "real_tasa_riesgo",
+      "spearman": 0.473,
+      "spearman_min_por_corte": 0.276,
+      "spearman_max_por_corte": 0.598,
+      "n": 27369
+    },
+    {
+      "indicador": "pct_quiebre_intradia",
+      "realizado_t+20": "real_tasa_quiebre",
+      "spearman": 0.421,
+      "spearman_min_por_corte": 0.255,
+      "spearman_max_por_corte": 0.525,
+      "n": 27369
+    },
+    {
+      "indicador": "intensidad_dispersion",
+      "realizado_t+20": "real_intensidad_am",
+      "spearman": 0.384,
+      "spearman_min_por_corte": 0.361,
+      "spearman_max_por_corte": 0.557,
+      "n": 14942
+    },
+    {
+      "indicador": "indice_concentracion_intradia",
+      "realizado_t+20": "real_agresividad",
+      "spearman": 0.279,
+      "spearman_min_por_corte": 0.179,
+      "spearman_max_por_corte": 0.623,
+      "n": 27259
+    },
+    {
+      "indicador": "participacion_intervalo_pico",
+      "realizado_t+20": "real_agresividad",
+      "spearman": 0.228,
+      "spearman_min_por_corte": -0.045,
+      "spearman_max_por_corte": 0.464,
+      "n": 27259
+    },
+    {
+      "indicador": "pct_dias_consumo_extremo",
+      "realizado_t+20": "real_extremos",
+      "spearman": 0.037,
+      "spearman_min_por_corte": -0.078,
+      "spearman_max_por_corte": 0.164,
+      "n": 27369
+    },
+    {
+      "indicador": "volatilidad_retiro_diario",
+      "realizado_t+20": "real_vol_residual",
+      "spearman": -0.231,
+      "spearman_min_por_corte": -0.473,
+      "spearman_max_por_corte": 0.064,
+      "n": 27369
+    },
+    {
+      "indicador": "aceleracion_abs_p90",
+      "realizado_t+20": "real_vol_residual",
+      "spearman": -0.38,
+      "spearman_min_por_corte": -0.588,
+      "spearman_max_por_corte": -0.051,
+      "n": 27365
+    }
+  ],
+  "pares_redundantes_|rho|>0.85": [
+    [
+      "retiro_promedio_diario",
+      "volatilidad_retiro_diario",
+      0.8548466523863424
+    ],
+    [
+      "retiro_promedio_diario",
+      "velocidad_consumo_promedio",
+      0.9892645850644499
+    ],
+    [
+      "retiro_promedio_diario",
+      "velocidad_consumo_p90",
+      0.9695605635382655
+    ],
+    [
+      "retiro_promedio_diario",
+      "aceleracion_abs_p90",
+      0.9053071158128193
+    ],
+    [
+      "volatilidad_retiro_diario",
+      "velocidad_consumo_promedio",
+      0.8502119347827067
+    ],
+    [
+      "dias_cobertura_promedio",
+      "dias_cobertura_p90",
+      0.899415761571377
+    ],
+    [
+      "pct_dias_saldo_critico",
+      "pct_quiebre_intradia",
+      0.8759201708142512
+    ],
+    [
+      "pct_dias_saldo_critico",
+      "score_riesgo_desabasto",
+      0.9240805119839773
+    ],
+    [
+      "pct_quiebre_intradia",
+      "score_riesgo_desabasto",
+      0.8751344318318066
+    ],
+    [
+      "velocidad_consumo_promedio",
+      "velocidad_consumo_p90",
+      0.977964117221448
+    ],
+    [
+      "velocidad_consumo_promedio",
+      "aceleracion_abs_p90",
+      0.9298145286970291
+    ],
+    [
+      "velocidad_consumo_p90",
+      "aceleracion_abs_p90",
+      0.9341621619611655
+    ]
+  ],
+  "calibracion_tau": {
+    "ALTO_RIESGO": {
+      "tau_elegido": 0.04,
+      "curva": [
+        {
+          "tau": 0.04,
+          "pct_sucursales": 0.331,
+          "tasa_real_sel": 0.118,
+          "lift": 2.365
+        },
+        {
+          "tau": 0.06,
+          "pct_sucursales": 0.257,
+          "tasa_real_sel": 0.134,
+          "lift": 2.704
+        },
+        {
+          "tau": 0.08,
+          "pct_sucursales": 0.202,
+          "tasa_real_sel": 0.15,
+          "lift": 3.013
+        },
+        {
+          "tau": 0.1,
+          "pct_sucursales": 0.158,
+          "tasa_real_sel": 0.166,
+          "lift": 3.344
+        },
+        {
+          "tau": 0.12,
+          "pct_sucursales": 0.122,
+          "tasa_real_sel": 0.184,
+          "lift": 3.693
+        },
+        {
+          "tau": 0.14,
+          "pct_sucursales": 0.091,
+          "tasa_real_sel": 0.2,
+          "lift": 4.024
+        },
+        {
+          "tau": 0.16,
+          "pct_sucursales": 0.069,
+          "tasa_real_sel": 0.216,
+          "lift": 4.338
+        },
+        {
+          "tau": 0.18,
+          "pct_sucursales": 0.052,
+          "tasa_real_sel": 0.234,
+          "lift": 4.696
+        },
+        {
+          "tau": 0.2,
+          "pct_sucursales": 0.039,
+          "tasa_real_sel": 0.243,
+          "lift": 4.879
+        },
+        {
+          "tau": 0.22,
+          "pct_sucursales": 0.03,
+          "tasa_real_sel": 0.256,
+          "lift": 5.14
+        },
+        {
+          "tau": 0.24,
+          "pct_sucursales": 0.022,
+          "tasa_real_sel": 0.261,
+          "lift": 5.253
+        },
+        {
+          "tau": 0.26,
+          "pct_sucursales": 0.015,
+          "tasa_real_sel": 0.261,
+          "lift": 5.256
+        },
+        {
+          "tau": 0.28,
+          "pct_sucursales": 0.011,
+          "tasa_real_sel": 0.27,
+          "lift": 5.423
+        },
+        {
+          "tau": 0.3,
+          "pct_sucursales": 0.008,
+          "tasa_real_sel": 0.271,
+          "lift": 5.457
+        },
+        {
+          "tau": 0.32,
+          "pct_sucursales": 0.005,
+          "tasa_real_sel": 0.291,
+          "lift": 5.853
+        },
+        {
+          "tau": 0.34,
+          "pct_sucursales": 0.004,
+          "tasa_real_sel": 0.281,
+          "lift": 5.644
+        },
+        {
+          "tau": 0.36,
+          "pct_sucursales": 0.003,
+          "tasa_real_sel": 0.312,
+          "lift": 6.273
+        },
+        {
+          "tau": 0.38,
+          "pct_sucursales": 0.002,
+          "tasa_real_sel": 0.346,
+          "lift": 6.958
+        },
+        {
+          "tau": 0.4,
+          "pct_sucursales": 0.002,
+          "tasa_real_sel": 0.327,
+          "lift": 6.58
+        }
+      ]
+    },
+    "QUIEBRE_INTRADIA": {
+      "tau_elegido": 0.01,
+      "curva": [
+        {
+          "tau": 0.01,
+          "pct_sucursales": 0.398,
+          "tasa_real_sel": 0.052,
+          "lift": 2.092
+        },
+        {
+          "tau": 0.02,
+          "pct_sucursales": 0.286,
+          "tasa_real_sel": 0.064,
+          "lift": 2.562
+        },
+        {
+          "tau": 0.03,
+          "pct_sucursales": 0.236,
+          "tasa_real_sel": 0.071,
+          "lift": 2.876
+        },
+        {
+          "tau": 0.04,
+          "pct_sucursales": 0.183,
+          "tasa_real_sel": 0.08,
+          "lift": 3.218
+        },
+        {
+          "tau": 0.05,
+          "pct_sucursales": 0.141,
+          "tasa_real_sel": 0.09,
+          "lift": 3.636
+        },
+        {
+          "tau": 0.06,
+          "pct_sucursales": 0.121,
+          "tasa_real_sel": 0.097,
+          "lift": 3.9
+        },
+        {
+          "tau": 0.07,
+          "pct_sucursales": 0.099,
+          "tasa_real_sel": 0.104,
+          "lift": 4.211
+        },
+        {
+          "tau": 0.08,
+          "pct_sucursales": 0.08,
+          "tasa_real_sel": 0.113,
+          "lift": 4.54
+        },
+        {
+          "tau": 0.09,
+          "pct_sucursales": 0.067,
+          "tasa_real_sel": 0.119,
+          "lift": 4.792
+        },
+        {
+          "tau": 0.1,
+          "pct_sucursales": 0.055,
+          "tasa_real_sel": 0.126,
+          "lift": 5.1
+        },
+        {
+          "tau": 0.11,
+          "pct_sucursales": 0.046,
+          "tasa_real_sel": 0.133,
+          "lift": 5.344
+        },
+        {
+          "tau": 0.12,
+          "pct_sucursales": 0.038,
+          "tasa_real_sel": 0.138,
+          "lift": 5.566
+        },
+        {
+          "tau": 0.13,
+          "pct_sucursales": 0.032,
+          "tasa_real_sel": 0.141,
+          "lift": 5.704
+        },
+        {
+          "tau": 0.14,
+          "pct_sucursales": 0.028,
+          "tasa_real_sel": 0.144,
+          "lift": 5.805
+        },
+        {
+          "tau": 0.15,
+          "pct_sucursales": 0.023,
+          "tasa_real_sel": 0.146,
+          "lift": 5.904
+        },
+        {
+          "tau": 0.16,
+          "pct_sucursales": 0.019,
+          "tasa_real_sel": 0.152,
+          "lift": 6.132
+        },
+        {
+          "tau": 0.17,
+          "pct_sucursales": 0.015,
+          "tasa_real_sel": 0.159,
+          "lift": 6.397
+        },
+        {
+          "tau": 0.18,
+          "pct_sucursales": 0.013,
+          "tasa_real_sel": 0.168,
+          "lift": 6.777
+        },
+        {
+          "tau": 0.19,
+          "pct_sucursales": 0.011,
+          "tasa_real_sel": 0.166,
+          "lift": 6.706
+        },
+        {
+          "tau": 0.2,
+          "pct_sucursales": 0.01,
+          "tasa_real_sel": 0.174,
+          "lift": 6.997
+        }
+      ]
+    },
+    "VOLATIL": {
+      "tau_elegido": null,
+      "curva": [
+        {
+          "tau": 0.3,
+          "pct_sucursales": 0.957,
+          "tasa_real_sel": 0.708,
+          "lift": 1.031
+        },
+        {
+          "tau": 0.4,
+          "pct_sucursales": 0.894,
+          "tasa_real_sel": 0.734,
+          "lift": 1.07
+        },
+        {
+          "tau": 0.5,
+          "pct_sucursales": 0.783,
+          "tasa_real_sel": 0.776,
+          "lift": 1.131
+        },
+        {
+          "tau": 0.6,
+          "pct_sucursales": 0.647,
+          "tasa_real_sel": 0.831,
+          "lift": 1.211
+        },
+        {
+          "tau": 0.7,
+          "pct_sucursales": 0.513,
+          "tasa_real_sel": 0.89,
+          "lift": 1.297
+        },
+        {
+          "tau": 0.8,
+          "pct_sucursales": 0.394,
+          "tasa_real_sel": 0.947,
+          "lift": 1.38
+        },
+        {
+          "tau": 0.9,
+          "pct_sucursales": 0.295,
+          "tasa_real_sel": 1.003,
+          "lift": 1.461
+        },
+        {
+          "tau": 1.0,
+          "pct_sucursales": 0.211,
+          "tasa_real_sel": 1.057,
+          "lift": 1.54
+        },
+        {
+          "tau": 1.1,
+          "pct_sucursales": 0.144,
+          "tasa_real_sel": 1.108,
+          "lift": 1.613
+        },
+        {
+          "tau": 1.2,
+          "pct_sucursales": 0.099,
+          "tasa_real_sel": 1.157,
+          "lift": 1.685
+        }
+      ]
+    },
+    "DISPERSION": {
+      "tau_elegido": 12.0,
+      "curva": [
+        {
+          "tau": 3.0,
+          "pct_sucursales": 0.788,
+          "tasa_real_sel": 2.7,
+          "lift": 1.075
+        },
+        {
+          "tau": 4.0,
+          "pct_sucursales": 0.649,
+          "tasa_real_sel": 2.817,
+          "lift": 1.121
+        },
+        {
+          "tau": 5.0,
+          "pct_sucursales": 0.52,
+          "tasa_real_sel": 2.94,
+          "lift": 1.171
+        },
+        {
+          "tau": 6.0,
+          "pct_sucursales": 0.403,
+          "tasa_real_sel": 3.051,
+          "lift": 1.215
+        },
+        {
+          "tau": 7.0,
+          "pct_sucursales": 0.303,
+          "tasa_real_sel": 3.165,
+          "lift": 1.26
+        },
+        {
+          "tau": 8.0,
+          "pct_sucursales": 0.224,
+          "tasa_real_sel": 3.28,
+          "lift": 1.306
+        },
+        {
+          "tau": 9.0,
+          "pct_sucursales": 0.162,
+          "tasa_real_sel": 3.427,
+          "lift": 1.364
+        },
+        {
+          "tau": 10.0,
+          "pct_sucursales": 0.114,
+          "tasa_real_sel": 3.54,
+          "lift": 1.409
+        },
+        {
+          "tau": 11.0,
+          "pct_sucursales": 0.078,
+          "tasa_real_sel": 3.668,
+          "lift": 1.46
+        },
+        {
+          "tau": 12.0,
+          "pct_sucursales": 0.054,
+          "tasa_real_sel": 3.807,
+          "lift": 1.515
+        }
+      ]
+    },
+    "SOBREDOTADA": {
+      "tau_elegido": 6.0,
+      "curva": [
+        {
+          "tau": 6,
+          "pct_sucursales": 0.66,
+          "cobertura_real_mediana": 15.946,
+          "pct_persiste_>=tau*0.7": 0.98,
+          "tasa_critico_real": 0.011
+        },
+        {
+          "tau": 8,
+          "pct_sucursales": 0.608,
+          "cobertura_real_mediana": 17.31,
+          "pct_persiste_>=tau*0.7": 0.957,
+          "tasa_critico_real": 0.01
+        },
+        {
+          "tau": 10,
+          "pct_sucursales": 0.551,
+          "cobertura_real_mediana": 19.058,
+          "pct_persiste_>=tau*0.7": 0.941,
+          "tasa_critico_real": 0.009
+        },
+        {
+          "tau": 12,
+          "pct_sucursales": 0.494,
+          "cobertura_real_mediana": 20.772,
+          "pct_persiste_>=tau*0.7": 0.929,
+          "tasa_critico_real": 0.008
+        },
+        {
+          "tau": 15,
+          "pct_sucursales": 0.42,
+          "cobertura_real_mediana": 23.023,
+          "pct_persiste_>=tau*0.7": 0.908,
+          "tasa_critico_real": 0.007
+        },
+        {
+          "tau": 20,
+          "pct_sucursales": 0.297,
+          "cobertura_real_mediana": 26.823,
+          "pct_persiste_>=tau*0.7": 0.91,
+          "tasa_critico_real": 0.006
+        }
+      ]
+    }
+  },
+  "estabilidad_kappa": [
+    {
+      "de": 20260130,
+      "a": 20260227,
+      "kappa": 0.108,
+      "pct_igual": 0.317,
+      "mismo_regimen": NaN
+    },
+    {
+      "de": 20260227,
+      "a": 20260331,
+      "kappa": 0.137,
+      "pct_igual": 0.344,
+      "mismo_regimen": NaN
+    },
+    {
+      "de": 20260331,
+      "a": 20260430,
+      "kappa": 0.114,
+      "pct_igual": 0.325,
+      "mismo_regimen": NaN
+    },
+    {
+      "de": 20260430,
+      "a": 20260529,
+      "kappa": 0.134,
+      "pct_igual": 0.349,
+      "mismo_regimen": NaN
+    },
+    {
+      "de": 20260529,
+      "a": 20260630,
+      "kappa": 0.115,
+      "pct_igual": 0.335,
+      "mismo_regimen": NaN
+    },
+    {
+      "de": 20260630,
+      "a": 20260731,
+      "kappa": 0.118,
+      "pct_igual": 0.326,
+      "mismo_regimen": NaN
+    },
+    {
+      "de": 20260731,
+      "a": 20260831,
+      "kappa": 0.118,
+      "pct_igual": 0.331,
+      "mismo_regimen": NaN
+    },
+    {
+      "de": 20260831,
+      "a": 20260930,
+      "kappa": 0.125,
+      "pct_igual": 0.343,
+      "mismo_regimen": NaN
+    },
+    {
+      "de": 20260130,
+      "a": 20260331,
+      "kappa": 0.791,
+      "pct_igual": 0.857,
+      "mismo_regimen": true
+    },
+    {
+      "de": 20260227,
+      "a": 20260430,
+      "kappa": 0.816,
+      "pct_igual": 0.879,
+      "mismo_regimen": true
+    },
+    {
+      "de": 20260331,
+      "a": 20260529,
+      "kappa": 0.844,
+      "pct_igual": 0.892,
+      "mismo_regimen": true
+    },
+    {
+      "de": 20260430,
+      "a": 20260630,
+      "kappa": 0.859,
+      "pct_igual": 0.909,
+      "mismo_regimen": true
+    },
+    {
+      "de": 20260529,
+      "a": 20260731,
+      "kappa": 0.858,
+      "pct_igual": 0.901,
+      "mismo_regimen": true
+    },
+    {
+      "de": 20260630,
+      "a": 20260831,
+      "kappa": 0.852,
+      "pct_igual": 0.905,
+      "mismo_regimen": true
+    },
+    {
+      "de": 20260731,
+      "a": 20260930,
+      "kappa": 0.832,
+      "pct_igual": 0.883,
+      "mismo_regimen": true
+    }
+  ],
+  "ARI_reglas_vs_GMM6": 0.17552797045102214,
+  "kruskal_tasa_critica": [
+    6016.247829366438,
+    0.0
+  ],
+  "realizado_por_tipo": [
+    {
+      "tipo_perfil": "ALTO_RIESGO",
+      "real_tasa_riesgo": 0.1,
+      "real_tasa_critico": 0.05,
+      "real_tasa_quiebre": 0.05,
+      "real_cobertura": 3.552,
+      "real_vol_residual": 0.4076,
+      "real_intensidad_am": 1.7773,
+      "n": 4337
+    },
+    {
+      "tipo_perfil": "DISPERSION",
+      "real_tasa_riesgo": 0.0,
+      "real_tasa_critico": 0.0,
+      "real_tasa_quiebre": 0.0,
+      "real_cobertura": 7.5025,
+      "real_vol_residual": 0.4939,
+      "real_intensidad_am": 2.5978,
+      "n": 1549
+    },
+    {
+      "tipo_perfil": "ESTABLE",
+      "real_tasa_riesgo": 0.0,
+      "real_tasa_critico": 0.0,
+      "real_tasa_quiebre": 0.0,
+      "real_cobertura": 7.5087,
+      "real_vol_residual": 0.5061,
+      "real_intensidad_am": 1.921,
+      "n": 10999
+    },
+    {
+      "tipo_perfil": "QUIEBRE_INTRADIA",
+      "real_tasa_riesgo": 0.0,
+      "real_tasa_critico": 0.0,
+      "real_tasa_quiebre": 0.0,
+      "real_cobertura": 10.9487,
+      "real_vol_residual": 0.7208,
+      "real_intensidad_am": 1.7723,
+      "n": 99
+    },
+    {
+      "tipo_perfil": "SOBREDOTADA",
+      "real_tasa_riesgo": 0.0,
+      "real_tasa_critico": 0.0,
+      "real_tasa_quiebre": 0.0,
+      "real_cobertura": 26.8226,
+      "real_vol_residual": 0.8306,
+      "real_intensidad_am": 2.1536,
+      "n": 8136
+    },
+    {
+      "tipo_perfil": "VOLATIL",
+      "real_tasa_riesgo": 0.0,
+      "real_tasa_critico": 0.0,
+      "real_tasa_quiebre": 0.0,
+      "real_cobertura": 14.3902,
+      "real_vol_residual": 0.8573,
+      "real_intensidad_am": 1.8843,
+      "n": 2249
+    }
+  ],
+  "tasa_base_critico": 0.036764774814757525,
+  "tasa_base_riesgo": 0.04972344365237298,
+  "tasa_base_quiebre": 0.02480166218756534
+}

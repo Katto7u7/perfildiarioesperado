@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+*.db
+*.bak_perfil_*
+*.xlsx
+out/*
+!out/semilla_errores.parquet
+!out/logs/
+out/logs/*
+!out/logs/.gitkeep

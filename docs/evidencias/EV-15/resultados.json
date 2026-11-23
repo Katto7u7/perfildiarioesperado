@@ -1,0 +1,82 @@
+{
+  "desarrollo|critico_cierre|todos": {
+    "brier": 0.024645630060384473,
+    "brier_climatologia": 0.11103755001567264,
+    "auc": 0.9825270677209168,
+    "tasa_base": 0.12722332424851557,
+    "n": 603938,
+    "precision@0.5": 0.8887817596653947,
+    "recall@0.5": 0.8518123251122536,
+    "max_error_decil_pp": 3.457520700360911
+  },
+  "desarrollo|critico_cierre|sin_traspaso": {
+    "brier": 0.021644114671073966,
+    "brier_climatologia": 0.11042666635969982,
+    "auc": 0.9870727569504416,
+    "tasa_base": 0.12640485329664655,
+    "n": 571323,
+    "precision@0.5": 0.9105033365944833,
+    "recall@0.5": 0.8634135534077377,
+    "max_error_decil_pp": 3.7047331404748194
+  },
+  "desarrollo|quiebre_intradia|todos": {
+    "brier": 0.0076075331034342955,
+    "brier_climatologia": 0.029219612639763817,
+    "auc": 0.9729455647202118,
+    "tasa_base": 0.030127264719226145,
+    "n": 603938,
+    "precision@0.5": 0.881044957472661,
+    "recall@0.5": 0.7970321516900247,
+    "max_error_decil_pp": 2.6303376828804126
+  },
+  "desarrollo|quiebre_intradia|sin_traspaso": {
+    "brier": 0.006666738406053029,
+    "brier_climatologia": 0.02782356084541795,
+    "auc": 0.9806979440431683,
+    "tasa_base": 0.028644041986757053,
+    "n": 571323,
+    "precision@0.5": 0.9000067471830511,
+    "recall@0.5": 0.8150931866788879,
+    "max_error_decil_pp": 2.6988608529738167
+  },
+  "holdout_POST_HOC|critico_cierre|todos": {
+    "brier": 0.022454226618160527,
+    "brier_climatologia": 0.10276518561028429,
+    "auc": 0.9852521731854879,
+    "tasa_base": 0.11628811017937468,
+    "n": 90035,
+    "precision@0.5": 0.8824968202719891,
+    "recall@0.5": 0.8615090735434575,
+    "max_error_decil_pp": 5.3413476558
+  },
+  "holdout_POST_HOC|critico_cierre|sin_traspaso": {
+    "brier": 0.019142976583090995,
+    "brier_climatologia": 0.09978334662040286,
+    "auc": 0.9901301000524722,
+    "tasa_base": 0.11242206799200094,
+    "n": 85010,
+    "precision@0.5": 0.8998058671268335,
+    "recall@0.5": 0.872972690174741,
+    "max_error_decil_pp": 5.606354051674284
+  },
+  "holdout_POST_HOC|quiebre_intradia|todos": {
+    "brier": 0.008016853380757161,
+    "brier_climatologia": 0.032800624923730246,
+    "auc": 0.9737064929424322,
+    "tasa_base": 0.033953462542344645,
+    "n": 90035,
+    "precision@0.5": 0.9021339220014717,
+    "recall@0.5": 0.8020935557736343,
+    "max_error_decil_pp": 2.0682140935846025
+  },
+  "holdout_POST_HOC|quiebre_intradia|sin_traspaso": {
+    "brier": 0.006452278081210266,
+    "brier_climatologia": 0.02922935407268388,
+    "auc": 0.9827873151054698,
+    "tasa_base": 0.030137630866956828,
+    "n": 85010,
+    "precision@0.5": 0.9132873166522865,
+    "recall@0.5": 0.8263075722092116,
+    "max_error_decil_pp": 2.470767065058949
+  }
+}

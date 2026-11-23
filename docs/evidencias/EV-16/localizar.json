@@ -1,0 +1,374 @@
+{
+  "N_m1": 40,
+  "anomalias_m1": 4,
+  "primer_estado_distinto": [
+    "qs",
+    "beta",
+    "qs",
+    "beta"
+  ],
+  "estados_por_iteracion": [
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "1a5b2206c4",
+      "qg": "0a5a92f2ac",
+      "pred": "24e86713b4"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "655d86305a",
+      "dev": "4f89f49f85",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "8e9530af81",
+      "qs": "7badbb75c9",
+      "qg": "b8c1d79cec",
+      "pred": "507b98bc3d"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "1a5b2206c4",
+      "qg": "0a5a92f2ac",
+      "pred": "24e86713b4"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "8c65460e62",
+      "dev": "e9052bcb9e",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "547c7681b3",
+      "qs": "2db401ec78",
+      "qg": "86e1ef79fd",
+      "pred": "222b7b3a9a"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    },
+    {
+      "beta": "b0f2e822c2",
+      "dev": "eda8dc26b4",
+      "dev_letras": "dab9ee21dc",
+      "nivel": "593dcba6fa",
+      "qs": "f3ceababca",
+      "qg": "c57edf7271",
+      "pred": "ef809f21b3"
+    }
+  ],
+  "N_numpy": 120,
+  "anomalias_numpy": 0
+}

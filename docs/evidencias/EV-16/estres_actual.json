@@ -1,0 +1,29 @@
+{
+  "tag": "actual",
+  "N": 12,
+  "MKL_CBWR": null,
+  "MKL_NUM_THREADS": null,
+  "resultados_distintos": [
+    "a4a61f1d82f8",
+    "ca1838d402f2"
+  ],
+  "conteo": {
+    "ca1838d402f2": 11,
+    "a4a61f1d82f8": 1
+  },
+  "fallas": [],
+  "segundos": [
+    4.9,
+    4.7,
+    4.6,
+    4.7,
+    4.7,
+    4.7,
+    4.7,
+    4.7,
+    4.6,
+    4.5,
+    4.7,
+    4.9
+  ]
+}

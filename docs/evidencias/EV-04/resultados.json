@@ -1,0 +1,102 @@
+{
+  "n_sucursal_dias_forma_valida": 1023305,
+  "n_sucursales": 3114,
+  "a_movimientos_corte": {
+    "n_suc": 2873,
+    "spearman": 0.9731906524256987,
+    "mediana_s_mov_1330": 0.7717820479073441,
+    "mediana_s_mon_1300": 0.7881276059927466,
+    "pct_mov1330_ge_mon1300": 0.5301079011486252,
+    "nota": "13:30 debe ser >= 13:00 si ambas fuentes describen el mismo proceso"
+  },
+  "b_fechas_nativas": {
+    "n": 257,
+    "rango": [
+      20260219,
+      20261113
+    ]
+  },
+  "b_backfill_vs_nativo": [
+    {
+      "corte": 900,
+      "subconjunto": "todos",
+      "n_nativo": 516716,
+      "n_backfill": 506589,
+      "mediana_nativo": 0.17636832541126718,
+      "mediana_backfill": 0.18750036529840497,
+      "ks_D": 0.03155663016157062
+    },
+    {
+      "corte": 900,
+      "subconjunto": "sin_dispersion",
+      "n_nativo": 82548,
+      "n_backfill": 163725,
+      "mediana_nativo": 0.10884615083067417,
+      "mediana_backfill": 0.11764705882352941,
+      "ks_D": 0.04846386297745264
+    },
+    {
+      "corte": 1100,
+      "subconjunto": "todos",
+      "n_nativo": 516716,
+      "n_backfill": 506589,
+      "mediana_nativo": 0.4724287054244929,
+      "mediana_backfill": 0.48236273336872126,
+      "ks_D": 0.024070240877395177
+    },
+    {
+      "corte": 1100,
+      "subconjunto": "sin_dispersion",
+      "n_nativo": 82548,
+      "n_backfill": 163725,
+      "mediana_nativo": 0.40152671826778663,
+      "mediana_backfill": 0.4263565891472868,
+      "ks_D": 0.042063251540141344
+    },
+    {
+      "corte": 1300,
+      "subconjunto": "todos",
+      "n_nativo": 516716,
+      "n_backfill": 506589,
+      "mediana_nativo": 0.7943451300382816,
+      "mediana_backfill": 0.8108614232209738,
+      "ks_D": 0.044342873041595565
+    },
+    {
+      "corte": 1300,
+      "subconjunto": "sin_dispersion",
+      "n_nativo": 82548,
+      "n_backfill": 163725,
+      "mediana_nativo": 0.7634800995138615,
+      "mediana_backfill": 0.8020331728196897,
+      "ks_D": 0.06319570266934016
+    }
+  ],
+  "b_std_entre_sucursales_p1100": [
+    {
+      "nativo": false,
+      "std": 0.08574564098915319,
+      "count": 3112
+    },
+    {
+      "nativo": true,
+      "std": 0.09042042821838332,
+      "count": 3108
+    }
+  ],
+  "c_eta2_entre_sucursales": {
+    "900": 0.09511724019734671,
+    "1100": 0.0771714831964818,
+    "1300": 0.06526903938080493
+  },
+  "c_estabilidad_mitades_p1100": {
+    "spearman": 0.8652951404438225,
+    "n": 3106,
+    "mad_cambio": 0.027845205694112002
+  },
+  "forma_mediana_global": {
+    "p_900": 0.1815540470651078,
+    "p_1100": 0.4772727272727273,
+    "p_1300": 0.8022657342378172
+  }
+}

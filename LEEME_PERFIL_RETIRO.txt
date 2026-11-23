@@ -1,0 +1,601 @@
+====================================================================================================================
+ PERFIL DE RETIRO Y PRONÓSTICO DIARIO POR SUCURSAL — GUÍA DE PRODUCCIÓN
+ Versión del sistema: 1.1.0          Revisión: 2026-11-23          Carpeta: VELOCIDADES\perfil_retiro_produccion
+====================================================================================================================
+
+Este documento explica, sin adornos: para qué sirve el código, qué produce, cómo funciona, qué evidencia lo
+respalda (y qué NO está demostrado), cómo se ejecuta, qué condiciones deben cumplirse, qué garantías ofrece y cómo
+se comprueba cada una, las limitaciones conocidas y las objeciones previsibles con su respuesta.
+Cada afirmación remite a su fuente: un archivo del código, una prueba automática (tests/) o una evidencia
+(docs/evidencias/EV-xx). Si algo no tiene fuente, no se afirma.
+
+ÍNDICE
+  1. Resumen en diez líneas
+  2. Para qué sirve (y para qué no)
+  3. Qué produce
+  4. Cómo funciona (paso a paso)
+  5. Evidencia: qué está demostrado y qué no
+  6. Cómo se ejecuta
+  7. Condiciones que deben cumplirse
+  8. Garantías y cómo se verifica cada una
+  9. Limitaciones conocidas
+ 10. Objeciones previsibles y respuesta
+ 11. Revisión de producción del 2026-11-23: hallazgos y correcciones
+ 12. La copia: qué contiene y cómo verificar su integridad
+ 13. Pendientes
+
+
+====================================================================================================================
+ 1. RESUMEN EN DIEZ LÍNEAS
+====================================================================================================================
+ 1) Cada noche lee, en solo lectura, las bases productivas de DATABASES_LEGACY (retiros de clientes, cortes
+    intradía de saldo, calendario y dispersiones).
+ 2) Calcula el PERFIL de retiro de cada sucursal (26 indicadores) y lo guarda en PERFIL_RETIRO_SUCURSAL y
+    PERFIL_RETIRO_SUCURSAL_CORTE de bancoDBPlanificacion_minimo.db.
+ 3) Pronostica el retiro del SIGUIENTE DÍA OPERATIVO por sucursal (esperado, P10, P50, P90, P95) y la probabilidad
+    de quedarse sin efectivo durante el día o de cerrar en nivel crítico (PREDICCION_RETIRO_DIARIA).
+ 4) Con datos que el modelo nunca vio (holdout oct-nov 2026), el pronóstico tuvo 24% menos error que la mejor
+    alternativa simple (WAPE 0.352 contra 0.466, p = 0.0006) y ordena el riesgo de saldo con AUC 0.98-0.99.
+ 5) NO todo pasó: la media agregada tuvo sesgo de +6% y la cobertura de intervalos por sucursal quedó corta. Por
+    eso opera en SOMBRA (validación prospectiva de 4-6 semanas) con criterios de salida medibles.
+ 6) No usa información futura: está probado con una prueba de perturbación y un control positivo.
+ 7) Escribe de forma transaccional e idempotente, con respaldo previo, y vuelca a Postgres (planeacion).
+ 8) Esta máquina no siempre calcula de forma determinista (EV-16). Por eso cada resultado se calcula dos veces y
+    solo se publica si ambos cálculos coinciden bit a bit.
+ 9) Requiere que MOVIMIENTOS tenga el cierre del día. Si no lo tiene, no publica nada nuevo y lo avisa.
+10) Se ejecuta con: correr_sombra.bat (programado a las 22:00, de lunes a viernes).
+
+
+====================================================================================================================
+ 2. PARA QUÉ SIRVE (Y PARA QUÉ NO)
+====================================================================================================================
+SIRVE PARA:
+  a) Planear la dotación del día siguiente. retiro_p50 es el pronóstico central; retiro_p90/p95 son la
+     demanda alta contra la que conviene cubrirse.
+  b) Priorizar sucursales en riesgo. prob_quiebre_intradia (quedarse sin efectivo antes de terminar la jornada) y
+     corte_presion (primer corte con P ≥ 0.5) dicen a quién atender primero y antes de qué hora. Es el indicador
+     mejor validado: de cada 10 alertas con p ≥ 0.5, 9 se cumplen, y detecta 8 de cada 10 quiebres (EV-15).
+  c) Saber con cuánto margen arranca cada sucursal: dias_cobertura_p50/p90 (saldo inicial ÷ demanda pronosticada).
+  d) Caracterizar sucursales para la política de visitas y topes: el perfil (retiro típico y alto, volatilidad,
+     cobertura, hora pico, concentración intradía, riesgo) y tipo_perfil (ALTO_RIESGO, QUIEBRE_INTRADIA,
+     SOBREDOTADA, DISPERSION, VOLATIL, ESTABLE), con umbrales calibrados contra lo que realmente ocurrió (EV-14).
+  e) Explicar cada pronóstico: la columna factores (JSON) da la contribución porcentual de cada efecto (día de
+     letra, saldo pendiente de dispersión, día de la semana, quincena, letras propias de la sucursal...).
+  f) Saber cuánto confiar en cada pronóstico: nivel_confianza (ALTA, MEDIA, BAJA, INSUFICIENTE), según el error
+     REAL fuera de muestra de esa sucursal en los últimos 60 días.
+  g) Auditar: cada corrida queda registrada con su huella de insumos y parámetros, y se puede reconstruir.
+
+NO SIRVE PARA (o no todavía):
+  - Decidir dotaciones de forma automática: es un insumo para la decisión, no la decisión.
+  - Usarse como dato oficial antes de salir de la sombra: cada corrida va marcada modo = SOMBRA.
+  - Sumar retiro_esperado entre sucursales como cifra exacta: tuvo sesgo de +6% en el holdout. Para decidir
+    conviene usar p50/p90 hasta que el monitoreo confirme sesgo ≤ 3%.
+  - Pronosticar más allá del siguiente día operativo: el horizonte es uno solo (el viernes pronostica el lunes;
+    antes de un cierre bancario, el siguiente día abierto).
+  - Sustituir el criterio operativo en sucursales con confianza BAJA o INSUFICIENTE.
+  - Fechas con un solo antecedente en la historia útil (diciembre, Semana Santa): ahí los intervalos son menos
+    confiables.
+
+
+====================================================================================================================
+ 3. QUÉ PRODUCE
+====================================================================================================================
+Destino SQLite: .\bancoDBPlanificacion_minimo.db
+Postgres: base sucursales, esquema planeacion, mismas tablas.
+
+  Tabla                              Filas por corrida        Contenido
+  ---------------------------------  -----------------------  ----------------------------------------------------
+  PERFIL_RETIRO_SUCURSAL             ~3,100 (1 por sucursal)  26 indicadores del perfil (docs/04_diccionario.md)
+  PERFIL_RETIRO_SUCURSAL_CORTE       ~12,200 (≈4 por suc.)    retiro por intervalo intradía en hora local
+  PREDICCION_RETIRO_DIARIA           ~3,100                   pronóstico y riesgo del siguiente día operativo
+  PERFIL_EXCLUSION                   decenas                  quién quedó fuera y por qué (nada se descarta en
+                                                              silencio)
+  PERFIL_RUN                         1                        bitácora: fechas, versión, huella, parámetros,
+                                                              estado, modo, vigencia y resultado de la verificación
+
+Además, out\entregables\perfil_retiro_<fecha_corte>.xlsx trae las mismas tablas (mismas columnas) y una hoja de
+Resumen, y out\monitoreo\monitoreo_AAAAMMDD.md trae el reporte semanal.
+
+Las columnas, fórmulas y unidades están en docs\04_diccionario
+
+
+====================================================================================================================
+ 4. CÓMO FUNCIONA (PASO A PASO)                                         Código: perfil_retiro\pipeline.py
+====================================================================================================================
+Notación: D = fecha de corte (último día con cierre cargado); T = siguiente día operativo (el pronosticado).
+
+ PASO 1  Extracción en solo lectura (sources.py; las conexiones se abren con mode=ro y query_only).
+         Las tablas de hechos se leen con id_fecha ≤ D: MOVIMIENTOS (demanda = retiro de clientes) y
+         MONITOREO_CORTE (cortes de 9, 11, 13 y 17 h). FECHA y DISPERSION son calendarios publicados por adelantado
+         y se leen completos. SUCURSAL es el catálogo. De PROGRAMAS_EMERGENTES se usa solo lo solicitado ≤ D.
+         Se calcula la HUELLA de todos estos insumos (filas, fecha máxima y hash del contenido).
+
+ PASO 2  Control de calidad de D. Aborta con código 2 y no publica nada si ocurre cualquiera de estos casos:
+         - D no es día operativo, o no existe un día operativo posterior;
+         - MOVIMIENTOS no tiene el cierre de D;
+         - menos del 90% de las sucursales con retiro tienen corte de 17:00 en D. Sin ese corte no se puede
+           detectar una carga parcial ni conocer el saldo inicial; históricamente la cobertura es ≥ 99.8% todos los
+           días salvo el 20/abr/2026, que fue 0%;
+         - D es copia del día anterior (≥ 99% de sucursales con retiro idéntico) o carga parcial (la sucursal
+           mediana trae < 90% de lo que muestra MONITOREO a las 17:00);
+         - D está en la lista de días dañados conocidos (config.yaml).
+         Si DISPERSION no está cargada hasta T, no aborta (hay huecos naturales de hasta 18 días sin pagos), pero
+         lo registra en PERFIL_RUN.mensaje.
+
+ PASO 3  Panel limpio sucursal × día operativo desde el 2025-06-02 (inicio de la historia útil, EV-03).
+         Estados: OK, FALTANTE_CARGA, COPIA, PARCIAL, SIN_EVIDENCIA, SUCURSAL_CERRADA, DUPLICADO. Solo los días
+         OK se usan. No se imputa nada; una sucursal sin fila en un día cargado cuenta como retiro 0.
+         El calendario operativo agrega los cierres bancarios que FECHA no marca: Jueves y Viernes Santo
+         (calculados con la fecha de Pascua), 12 de diciembre y 2 de noviembre.
+
+ PASO 4  Pronóstico de T. Ganador del torneo pre-registrado: ENS_ALL (EV-12).
+         M1    Modelo estadístico sobre log(retiro). Nivel propio por sucursal × régimen (IMPAR = meses de AM, PAR =
+               meses de BECAS) con media exponencial causal (vida media de 4 días). Efectos comunes de calendario
+               estimados por mínimos cuadrados acotados (los saldos pendientes de dispersión solo pueden aumentar
+               el retiro). Efectos propios contraídos (empírico-Bayes) y desviación propia por combinación de
+               letras.
+         M2    Gradient boosting (cuantil 0.5) sobre variables estrictamente anteriores a T. Se entrena con datos
+               hasta el primer día operativo del mes de D, igual que en el backtest validado.
+         NB    Método de letras del notebook original, corregido para no usar datos futuros.
+         ENS_ALL = promedio(M1, NB, M2) en días de AM; promedio(M1, M2) los demás días.
+
+ PASO 5  Intervalos y media por conformal causal (calibracion.py y pipeline._conformal_un_origen).
+         Se calculan los cuantiles de los errores reales fuera de muestra: los últimos 60,000 por estrato (día AM
+         o no AM) mezclados con los últimos 120 de la sucursal. Los errores vienen de la semilla del backtest y,
+         en cuanto existen, de las predicciones propias ya realizadas, que la sustituyen en sus fechas.
+         retiro_esperado = punto × (Σ real / Σ pronóstico de los últimos 40 días), un estimador de razón.
+
+ PASO 6  Riesgo de saldo, sin dotación adicional (definiciones del usuario del 2026-11-18, EV-15):
+         crítico al cierre   S0 + depósitos netos − retiro del día < P90 pronosticado;
+         quiebre en corte c  S0 + depósitos netos al corte − fracción_c × retiro < (1 − fracción_c) × P90;
+                             a las 17:00, saldo < 0.
+         S0 es el saldo de cierre de D, real y conocido. Si falta, las probabilidades quedan vacías; no se
+         inventan.
+
+ PASO 7  Perfil (perfil.py). Ventana: los últimos 126 días válidos del régimen de T (EV-09 refutó una ventana
+         mezclada de 180 días); se exigen al menos 60. Los cortes se convierten a hora local de la sucursal:
+         huso por estado, horario de verano exacto para Baja California, apertura a las 9:00 locales o a las
+         8:00 si la sucursal es muy transaccional, y desfase efectivo de corte de 0.85 h (EV-11).
+
+ PASO 8  Contrato (contrato.py). Cada fila se valida contra TODOS los CHECK/NOT NULL/PK del DDL destino. Lo que no
+         cumple no se corrige ni se fuerza: se excluye y se registra en PERFIL_EXCLUSION con la regla violada.
+
+ PASO 9  Cómputo verificado (pipeline.correr_diario, EV-16). Los pasos 1 a 8 se ejecutan DOS veces, cada una desde
+         la extracción, y se compara un hash exacto de todo lo que se publicaría. Si coinciden, se publica. Si no
+         coinciden o uno falla, se hacen cómputos adicionales (máximo 5) hasta que dos coincidan. Si no se logra,
+         no se publica nada (código 1).
+
+ PASO 10 Persistencia (persistencia.py). Primero un respaldo del archivo destino: uno por día, solo si hay espacio,
+         conservando los 5 más recientes. Luego UNA transacción que inserta las 5 tablas y marca vigente = 0 la
+         corrida anterior de la misma fecha de corte. Si el id ya existe con los mismos insumos, no escribe
+         (OMITIDO_YA_EXISTE). Las sucursales que no estén en el catálogo SUCURSAL se excluyen (FK_SUCURSAL); el
+         catálogo no se modifica.
+
+ PASO 11 Volcado a Postgres (postgres_sync.py). Toma las corridas pendientes y verifica la FK contra
+         planeacion.sucursal. Inserta con ON CONFLICT DO NOTHING y compara los conteos por tabla; si no cuadran,
+         hace ROLLBACK total. Propaga la vigencia y marca pg_sincronizado. Si falla, la corrida no falla: se
+         reintenta la noche siguiente.
+
+
+====================================================================================================================
+ 5. EVIDENCIA: QUÉ ESTÁ DEMOSTRADO Y QUÉ NO
+====================================================================================================================
+Protocolo pre-registrado: docs\03_protocolo_preregistrado.md (sha256 en el .sha256 contiguo). El holdout se
+congeló antes de evaluarlo (docs\congelamiento_holdout.txt) y se evaluó UNA sola vez (EV-13).
+WAPE = Σ|pronóstico − real| / Σ real (error relativo ponderado por volumen; menor es mejor).
+B1 = mediana de los últimos 8 días del mismo tipo de día y régimen, la mejor alternativa simple.
+
+  Resultado                                          Desarrollo (dic-25 a sep-26)    Holdout (oct a 13-nov-26)
+  -------------------------------------------------  ------------------------------  ---------------------------
+  WAPE ENS_ALL vs B1                                 0.319 vs 0.417 (−23.6%)         0.352 vs 0.466 (−24.3%)
+  Significancia (Diebold-Mariano, HAC)               p < 0.001                       p = 0.0006
+  Sucursales donde ENS_ALL no es peor que B1         98.2%                           92.6%
+  Fenix (PREDICCION_DS), en su subconjunto           0.518 (B1 en él: 0.417)         0.443 (B1 en él: 0.409)
+  Degradación desarrollo → holdout                   —                               +10.5% (límite 15%) ✔
+  Cobertura global P10-P90 (objetivo 77-83%)         78.3% ✔                         79.8% ✔
+  |Sesgo de la media| ≤ 3%                           +0.01% ✔                        +6.0% ✘ (días sin AM +18%)
+  ≥ 85% de sucursales con cobertura en [70%, 90%]    91.9% ✔                         75.8% ✘ (esperado 87.1%)
+  Quiebre intradía: error máximo por decil / AUC     2.7 pp / 0.981                  2.5 pp / 0.983 ✔ (post hoc*)
+  Crítico al cierre: error máximo por decil / AUC    3.7 pp / 0.987                  5.6 pp / 0.990 ✘ (post hoc*)
+  tipo_perfil estable dentro del mismo régimen       kappa 0.79-0.86 (EV-14)
+  * La definición de riesgo cambió por decisión del usuario DESPUÉS de ver el holdout. Esos números del holdout
+    son post hoc y así se declaran.
+
+Prospectivo (lo único que cuenta como prueba "en vivo"): predicción hecha con el corte del 13/nov para el 17/nov,
+comparada con lo real: WAPE 0.187 (v1.0.0) / 0.186 (v1.1.0), sesgo de la media −1.4% / −1.7%, cobertura P10-P90 89%,
+AUC de crítico al cierre 0.98 y de quiebre 0.98. Es UN solo día: indica dirección correcta, pero no demuestra nada.
+
+VEREDICTO SIN MAQUILLAJE
+  Demostrado con datos nunca vistos: el pronóstico puntual del día siguiente (−24% de error contra la mejor
+  alternativa simple; −20% contra Fenix en su subconjunto) y la capacidad de ordenar el riesgo de saldo.
+  NO demostrado: el sesgo de la media agregada, la calibración fina de intervalos por sucursal y la calibración
+  del crítico al cierre en el holdout. Son exactamente las condiciones de salida de la sombra (sección 6.6).
+
+
+====================================================================================================================
+ 6. CÓMO SE EJECUTA
+====================================================================================================================
+6.1 Requisitos
+  - Windows con Anaconda en C:\ProgramData\anaconda3. Probado con Python 3.13.9, pandas 2.3.3, numpy 2.3.5,
+    scikit-learn 1.7.2, scipy 1.16.3, psycopg2, PyYAML y openpyxl. "python" no está en el PATH: usar siempre
+    la ruta completa.
+  - Las bases de C:\Users\Gerardo\Desktop\DATABASES_LEGACY (sección 7) y el archivo de credenciales
+    ..\..\kilometraje\.env (PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD) para Postgres.
+  - out\semilla_errores.parquet (incluido en la copia; sha256 en la sección 12).
+
+6.2 Comandos (desde la carpeta perfil_retiro_produccion)
+  Pruebas automáticas (30):   C:/ProgramData/anaconda3/python.exe -m pytest tests -q
+  Diagnóstico de insumos:     C:/ProgramData/anaconda3/python.exe -m perfil_retiro.cli check-sources --auto
+  Corrida del día:            C:/ProgramData/anaconda3/python.exe -m perfil_retiro.cli run-daily --auto --excel
+  Reprocesar un día:          ... run-daily --fecha-corte 20261119 --excel
+  Probar sin tocar la base:   ... run-daily --fecha-corte 20261119 --db out\prueba.db   (modo PRUEBA)
+  Exportar a Excel:           C:/ProgramData/anaconda3/python.exe -m perfil_retiro.exportar --fecha-corte 20261119
+  Monitoreo:                  C:/ProgramData/anaconda3/python.exe -m perfil_retiro.monitoreo
+  Postgres, prueba:           C:/ProgramData/anaconda3/python.exe -m perfil_retiro.cli sync-postgres --dry-run
+  Postgres, real:             ... sync-postgres --commit   (run-daily ya lo hace solo si está habilitado)
+  Carga histórica de perfiles: ... cli backfill --meses 202601-202610
+
+6.3 Programación (una sola vez, en una terminal de Windows)
+  schtasks /Create /TN PerfilRetiroSombra /SC WEEKLY /D MON,TUE,WED,THU,FRI /ST 22:00 /TR
+  "C:\Users\Gerardo\Desktop\Arquitectura\inversa\ANALISIS\VELOCIDADES\perfil_retiro_produccion\correr_sombra.bat"
+  correr_sombra.bat corre la corrida del día con su Excel y, los viernes, el monitoreo. Cada noche anota en
+  out\logs\sombra.log el inicio, el fin y el código de salida.
+
+6.4 Códigos de salida
+  0  Escrita, OMITIDO_YA_EXISTE (mismos insumos) o SIN DATOS NUEVOS (la fecha ya tiene corrida vigente).
+  2  Abortada a propósito por datos (sección 4, paso 2). No se publicó nada. Revisar la carga del día.
+  1  Error inesperado, cómputo no verificado (EV-16) o espacio insuficiente para el respaldo. No se publicó nada.
+     Revisar out\logs\perfil_retiro.log y reejecutar con la misma fecha.
+  3  (solo monitoreo) Hay alertas. Leer out\monitoreo\monitoreo_AAAAMMDD.md.
+
+6.5 Duración típica
+  6 a 9 minutos por corrida: dos cómputos completos de 2.5 a 4 minutos cada uno, más la escritura. Si hay
+  discrepancias se hacen cómputos extra (peor caso, 5 cómputos: ~20 minutos).
+
+6.6 Salida de la sombra
+  Se mide con el monitoreo, con al menos 20 días objetivo realizados. Se cumplen las cuatro condiciones:
+  |sesgo de retiro_esperado| ≤ 3%; cobertura por sucursal ≥ lo esperado con calibración perfecta − 5 pp;
+  P(crítico al cierre) con error ≤ 5 pp en todos los deciles; WAPE ≤ 0.405 (1.15 × 0.352).
+  Entonces se cambia destino.modo a PRODUCCION en config.yaml. Si alguna no se cumple, se diagnostica y se
+  recalibra sin tocar el holdout.
+
+
+====================================================================================================================
+ 7. CONDICIONES QUE DEBEN CUMPLIRSE (y qué pasa si no)
+====================================================================================================================
+  Condición                                              Si no se cumple
+  -----------------------------------------------------  ----------------------------------------------------------
+  C1  bancoDB11.db: MOVIMIENTOS con el cierre de D        --auto toma el último día cargado. Si ya tiene corrida,
+      (≈ 18 h); también FECHA, DISPERSION y SUCURSAL     no reprocesa (SIN DATOS NUEVOS) y el monitoreo alerta el
+                                                         atraso. Observado: el 23/nov MOVIMIENTOS seguía en el 19/nov.
+  C2  bancoDBSaldosYMonitoreo.db: MONITOREO_CORTE con     Aborta (código 2). Sin saldo inicial no hay riesgo, y sin
+      los cortes de D, sobre todo el de 17:00 (≥ 90%)    corte de 17:00 no se puede validar la carga.
+  C3  bancoDBOperativo.db: PROGRAMAS_EMERGENTES           Opcional: sin ella el efecto LEEN/LCEN vale 0 y queda
+                                                         registrado en el log.
+  C4  FECHA y DISPERSION cargadas por adelantado hasta T  FECHA sin días posteriores: aborta. DISPERSION sin T:
+                                                         avisa en PERFIL_RUN.mensaje; si ese día había pago por
+                                                         letra, el pronóstico no lo considera.
+  C5  Base destino con PERFIL_RETIRO_SUCURSAL y _CORTE    Aborta: no las crea.
+      (DDL de referencia) y catálogo SUCURSAL
+  C6  Espacio libre ≥ 1.5 × tamaño del destino + 1 GB     No escribe (código 1). La base mide ~0.7 GB; quedaban
+      (respaldo)                                         ~25 GB libres en C: el 2026-11-23 (98% ocupado).
+  C7  out\semilla_errores.parquet presente                Aborta: sin errores fuera de muestra no hay intervalos.
+  C8  Postgres: tablas de sql\postgres\01_..., permisos   El volcado falla y se reintenta la noche siguiente; SQLite
+      de 02_grants_... y sucursales en planeacion.sucursal queda correcto.
+  C9  La tarea programada corre después de la carga de    Si corre antes, ese día no hay datos nuevos (C1).
+      MOVIMIENTOS
+  C10 No editar config.yaml sin registrarlo                Cualquier cambio altera el hash y crea ids nuevos; los
+                                                         cambios de umbral se registran en el protocolo §8.
+
+
+====================================================================================================================
+ 8. GARANTÍAS Y CÓMO SE VERIFICA CADA UNA
+====================================================================================================================
+  G1  No usa información futura.
+      Cómo se garantiza: extracción acotada a ≤ D; variables de M2 por merge_asof estricto (< T); corte de M2 ≤ D;
+      conformal solo con errores cuyo día objetivo ≤ D; PROGRAMAS_EMERGENTES solo lo solicitado ≤ D.
+      Cómo se verifica: tests\test_integridad.py::test_sin_fuga_perturbando_futuro (se altera todo el futuro y el
+      pronóstico no cambia) y test_control_positivo_detecta_fuga (si se inyecta el día real, la prueba lo
+      detecta); test_produccion.py::test_m2_corte_es_primer_operativo_del_mes_y_nunca_futuro.
+  G2  Solo lectura sobre las fuentes.
+      sources.conectar_ro abre con mode=ro y PRAGMA query_only = ON. El monitoreo y el export abren el destino
+      en mode=ro.
+  G3  No publica con datos dañados.
+      Compuertas del paso 2 (código 2). Lo que el contrato rechaza va a PERFIL_EXCLUSION.
+      Verificación: test_contrato_rechaza_y_no_fuerza, test_cobertura_monitoreo.
+  G4  Escritura atómica e idempotente.
+      Una transacción por corrida; id determinista (configuración + huella de todos los insumos); reejecutar
+      con los mismos insumos devuelve OMITIDO_YA_EXISTE. Probado el 2026-11-20 sobre la base destino de entonces
+      (DBs\bancoDBPlanificacion_minimo.db): la reejecución no duplicó nada.
+  G5  Respaldo y reversibilidad.
+      Respaldo diario antes de escribir (API de backup de SQLite), con verificación de espacio y retención de 5.
+      Verificación: test_respaldo_retencion_solo_borra_los_propios, test_respaldo_sin_espacio_no_escribe.
+  G6  No modifica estructuras ni catálogos ajenos.
+      Las tablas de perfil deben existir; solo se crean las 3 complementarias si faltan. SUCURSAL no se toca.
+      Verificación: tests\test_destino.py.
+  G7  Resultado verificado contra fallas del equipo.
+      Doble cómputo bit a bit con desempate (EV-16).
+      Verificación: los 5 test_verificacion_* (dos iguales publica; discrepancia la decide el tercero; una falla
+      seguida de dos iguales publica; sin coincidencia no publica; un problema de datos no se reintenta).
+  G8  Reproducible y auditable.
+      PERFIL_RUN guarda versión, hash, huella y parámetros. La semilla de calibración se regenera idéntica con
+      evidencias\generar_semilla.py (verificado con assert_frame_equal el 2026-11-23).
+  G9  Postgres consistente con SQLite.
+      Una transacción, verificación de FK, conteos por tabla iguales o ROLLBACK, vigencia propagada.
+      Probado el 2026-11-23: 12 corridas, mismos conteos en las 5 tablas y re-sincronización sin duplicados.
+  G10 Honestidad del reporte.
+      Las limitaciones están escritas (sección 9) y los criterios que fallaron son las condiciones de salida.
+
+
+====================================================================================================================
+ 9. LIMITACIONES CONOCIDAS
+====================================================================================================================
+  L1  Validación parcial (sección 5): sesgo de la media, cobertura por sucursal y calibración del crítico al cierre
+      no pasaron en el holdout. Por eso el sistema opera en sombra.
+  L2  Prospectivo mínimo: un solo día objetivo realizado (17/nov) al 2026-11-23.
+  L3  Máquina no determinista (EV-16): ~6% de los ajustes idénticos de M1 dan otro resultado, en etapas distintas
+      (mínimos cuadrados de SciPy, cuantiles de pandas). MKL está descartado. La causa raíz no está identificada:
+      puede ser inestabilidad de memoria o CPU, o un defecto de alguna biblioteca. Está mitigado con la
+      verificación (no se publica nada no verificado), a costa del doble de tiempo.
+  L4  Historia útil corta: desde el 2025-06-02 (cambio estructural antes). Diciembre y Semana Santa tienen un solo
+      antecedente.
+  L5  Apertura a las 8:00 INFERIDA (269 sucursales, EV-11) a falta de la lista oficial. Afecta solo a los
+      indicadores intradía del perfil (horas e intervalos), no al pronóstico diario.
+  L6  Demanda = MOVIMIENTOS (retiro de clientes). Los traspasos entre sucursales no son demanda de clientes. El
+      saldo y el riesgo sí usan la salida total de MONITOREO.
+  L7  Riesgo calculado SIN dotación adicional: si la sucursal recibe dotación ese día, el riesgo real es menor.
+  L8  Calendarios: DISPERSION se carga por adelantado (verificado: el 23/nov llegaba al 27/nov). Que no se
+      reescriba hacia atrás es un SUPUESTO no verificado. Los cierres bancarios que FECHA no marca están codificados
+      (Jueves y Viernes Santo, 12 de diciembre y 2 de noviembre); un cierre nuevo no listado se trataría como
+      día operativo.
+  L9  ~33% del volumen viene de programas sin calendario confiable (SEMBRANDO, LEEN, otros): es variabilidad que
+      el modelo no puede anticipar.
+  L10 Dependencia del entorno: rutas fijas de esta máquina, Anaconda y el Programador de tareas de Windows.
+      Migrar a otro servidor requiere ajustar config.yaml y el .bat.
+  L11 El catálogo SUCURSAL se lee en su versión actual: si una sucursal cambiara de estado, una reconstrucción de
+      fechas pasadas usaría el huso actual.
+  L12 Monitoreo parcial: la validez de las categorías (EV-14) y la razón MOVIMIENTOS/MONITOREO no están
+      automatizadas; se revisan en la recalibración mensual.
+  L13 La regeneración de la semilla requiere el backtest calibrado (out\backtest\cal_devhold_ens_all.parquet de
+      la carpeta original prod_perfil_retiro).
+
+
+====================================================================================================================
+ 10. OBJECIONES PREVISIBLES Y RESPUESTA
+====================================================================================================================
+ O1  "Usa datos del futuro, por eso sale tan bien."
+     Toda tabla de hechos se lee con id_fecha ≤ D. La prueba de perturbación altera todo el futuro y el pronóstico
+     no cambia; el control positivo demuestra que la prueba sí detectaría una fuga. En v1.1.0 se eliminó la única
+     vía de fuga encontrada (M2 en reprocesos, sección 11).
+ O2  "Le ganó a un baseline débil."
+     B1 es la mejor de tres alternativas simples (B0 0.708, B2 0.743, B1 0.417 en desarrollo) y la que mejor imita
+     la práctica (mediana del mismo tipo de día y régimen). ENS_ALL también le gana a Fenix (−20% en su
+     subconjunto) y al método del notebook (NB 0.489 en el holdout), y le gana a B1 en los 12 meses evaluados.
+ O3  "Ajustaron el modelo mirando el holdout."
+     El protocolo se pre-registró con sha256 y el código se congeló antes del holdout (docs\congelamiento_holdout.txt).
+     Se evaluó una vez y no se cambió el ganador aunque M2 solo salió 2% mejor. Verificable hoy con
+     sha256sum -c: el NÚCLEO DEL PRONÓSTICO es idéntico byte por byte al congelado (modelo.py, m2_gbm.py, panel.py,
+     calidad.py, sources.py, contrato.py, evaluacion.py, backtest.py y los 11 SQL de extracción). Lo que difiere
+     cambió DESPUÉS del holdout y está registrado:
+       - perfil.py: definición de riesgo del usuario (18/nov, post hoc), velocidades (20/nov), horario de verano
+         (v1.1.0). Afecta solo al perfil, no al pronóstico;
+       - calibracion.py: se agregó la opción 'razon_regimen', probada post hoc y DESCARTADA (EV-13);
+       - pipeline.py, persistencia.py, cli.py, config.py, config.yaml: integración productiva y v1.1.0 (sección 11);
+       - ev12_torneo.py y el protocolo: filtro de fechas del holdout y registro de cambios (EV-13).
+ O4  "Un día de prueba en vivo no demuestra nada."
+     Correcto. Por eso hay operación en sombra con criterios de salida medibles y automatizados.
+ O5  "Los intervalos no están calibrados."
+     Globalmente sí (79.8%). Por sucursal no (75.8% contra 87.1% esperado). Está declarado y es criterio de salida.
+ O6  "La media agregada está inflada."
+     +6% en el holdout (días sin AM +18%). Se recomienda decidir con p50/p90 hasta que el monitoreo muestre sesgo ≤ 3%.
+     Una corrección post hoc lo empeoraba (+8.2%) y no se adoptó.
+ O7  "Si corro lo mismo dos veces, ¿sale lo mismo?"
+     El código es determinista: en ejecuciones sanas, 5 cómputos independientes coincidieron bit a bit, incluido
+     el reentrenamiento de M2. Esta máquina altera al azar alrededor del 6% de los ajustes (EV-16). Por eso se
+     calcula dos veces y solo se publica lo que coincide bit a bit. Lo que se garantiza es que no se publica un
+     resultado no verificado.
+ O8  "¿Y si se va la luz a media escritura?"
+     La escritura es una sola transacción de SQLite (todo o nada), con respaldo previo. En Postgres, una
+     transacción con verificación de conteos.
+ O9  "¿Y si la carga del día viene mal?"
+     Copias, cargas parciales, corte de 17:00 faltante o día no operativo abortan con código 2 sin publicar. Días
+     dañados históricos: cuarentena en config.yaml (EV-01, EV-02).
+ O10 "tipo_perfil es arbitrario."
+     Los umbrales se calibraron contra lo realizado en t+1..t+20: lift de 3.3 en ALTO_RIESGO y de 4.2 en
+     QUIEBRE_INTRADIA (EV-14). Es estable dentro del régimen (kappa 0.79-0.86). DISPERSION tiene validez débil
+     (lift 1.41) y así se reporta.
+ O11 "Las horas del perfil son supuestas."
+     Apertura a las 9:00 locales: dato del negocio. A las 8:00: inferida por la fracción del retiro al primer
+     corte (EV-11). El desfase de corte (0.85 h) está estimado con datos. Mejoraría con la lista oficial (L5).
+ O12 "Se escribió en una base productiva."
+     Con autorización explícita del usuario (2026-11-20), solo en las 2 tablas de perfil existentes y 3 tablas
+     nuevas propias. Con respaldo diario y sin tocar catálogos ni otras tablas.
+ O13 "SQLite y Postgres pueden quedar distintos."
+     Cada volcado compara conteos por tabla y corrida o revierte todo; la vigencia se propaga; pg_sincronizado
+     indica qué falta. Re-sincronizar no duplica (probado).
+ O14 "La semilla de calibración es una caja negra."
+     Se regenera idéntica con evidencias\generar_semilla.py a partir del backtest (verificado con
+     assert_frame_equal). sha256 en la sección 12.
+ O15 "¿Qué pasa en feriados y Semana Santa?"
+     El calendario operativo calcula Pascua y agrega los cierres que FECHA no marca (prueba test_cierres_bancarios).
+     El viernes pronostica el lunes y, antes de un cierre, el siguiente día abierto. La limitación es de
+     historia (L4), no de calendario.
+ O16 "El monitoreo puede decir que todo está bien sin estarlo."
+     En v1.0.0 era cierto: leía una base de pruebas vieja. Corregido en v1.1.0 (lee el destino, en solo lectura,
+     con las mismas reglas de validez que el pipeline) y probado (test_monitoreo_usa_destino_por_defecto).
+
+
+====================================================================================================================
+ 11. REVISIÓN DE PRODUCCIÓN DEL 2026-11-23: HALLAZGOS Y CORRECCIONES
+====================================================================================================================
+Se revisó todo el código de perfil_retiro\ (sources, calidad, panel, modelo, m2_gbm, backtest, calibracion,
+perfil, contrato, persistencia, pipeline, postgres_sync, monitoreo, exportar y cli), sql\, config\, el .bat y las
+pruebas. Para cada posible falla se planteó la objeción contraria antes de corregir. Esto se encontró:
+
+  #   Hallazgo (v1.0.0)                                   Gravedad  Corrección (v1.1.0) y verificación
+  --  --------------------------------------------------  --------  -------------------------------------------------
+  H1  El monitoreo leía out\dev.db (base de pruebas         ALTA      Lee el destino de config en mode=ro y usa el
+      vieja), no la base real: el reporte semanal era                 panel limpio. test_monitoreo_usa_destino_...
+      inválido.
+  H2  El modelo M2 se cacheaba por mes de T y se entrenaba  ALTA      Corte determinista (primer día operativo del mes
+      con los datos de la primera corrida del mes. Al                 de D), sin caché en disco. test_m2_corte_...
+      reprocesar un día anterior se usaba un modelo
+      entrenado con datos FUTUROS (fuga en reprocesos) y el
+      resultado dependía del orden de las corridas. No
+      afectó a lo publicado: el 13/nov se corrió antes que
+      el 19/nov, y la carga histórica no usa M2.
+  H3  Cómputo no determinista de la máquina: de 5           ALTA      Cómputo verificado (sección 4, paso 9). EV-16
+      reconstrucciones idénticas del 13/nov, 1 salió                  documenta la medición. test_verificacion_* (5).
+      distinta EN SILENCIO (p50 hasta ±50%) y 1 falló.
+      Prueba de estrés: 8 de 132 ajustes idénticos de M1
+      (6%) dieron resultados distintos, cada uno diferente;
+      persiste con MKL en modo reproducible y un hilo;
+      0 de 120 en aritmética pura de NumPy.
+  H4  Los respaldos diarios (~0.7 GB) sin retención         ALTA      Retención de 5 y verificación de espacio.
+      llenaban el disco en ~5 semanas (25 GB libres).                 test_respaldo_*.
+  H5  Faltaba una compuerta: sin el corte de 17:00 de D no  MEDIA     Aborta si la cobertura es < 90% (histórico
+      se detecta una carga parcial y el saldo queda vacío             ≥ 99.8%). test_cobertura_monitoreo.
+      (el 20/abr/2026 MONITOREO no tenía datos).
+  H6  El conformal de producción usaba TODOS los errores    MEDIA     Igual que el validado.
+      para los cuantiles globales; el método validado usa             test_conformal_usa_errores_recientes.
+      los últimos 60,000 por estrato.
+  H7  Postgres no propagaba la vigencia: una corrida        MEDIA     UPDATE de vigencia en cada sincronización.
+      reemplazada seguía vigente en el servidor.
+  H8  La falta de una sucursal en planeacion.sucursal daba  BAJA      Verificación previa con un mensaje claro.
+      un error de FK poco claro.
+  H9  La huella no incluía SUCURSAL ni PROGRAMAS_EMERGENTES BAJA      Incluidas.
+      (cambios en ellas no cambiaban el id).
+  H10 Horario de verano de Baja California aproximado       BAJA      Regla exacta (2.º domingo de marzo a 1.er domingo
+      (errado del 2 al 7 de noviembre de 2026).                       de noviembre). test_horario_verano_eua (8 casos).
+  H11 Intervalos rechazados por el contrato se descartaban  BAJA      Se registran como CONTRATO_INTERVALO con el
+      sin dejar rastro por sucursal.                                  intervalo y la regla.
+  H12 --auto reprocesaba la misma fecha cada noche si       BAJA      No reprocesa; registra SIN DATOS NUEVOS o DATOS
+      MOVIMIENTOS no se actualizaba.                                  ATRASADOS.
+  H13 Probabilidades por corte calculadas sin saldo         BAJA      Quedan vacías.
+      inicial; dias_cobertura_p50 con el punto sin recortar.
+  H14 Documentación desactualizada: el .bat decía "no       BAJA      Corregidos el .bat, el README, docs\04 y docs\05.
+      escribe en producción", el README decía "Postgres               docs\05 solo lista lo implementado.
+      deshabilitado" y docs\05 listaba señales de monitoreo
+      no implementadas.
+  H15 La semilla de calibración no tenía script de          BAJA      evidencias\generar_semilla.py (reproducción
+      generación en el proyecto.                                      idéntica verificada).
+
+Efecto sobre los resultados. Reconstrucción del corte del 13/nov con v1.1.0 en una base de prueba, contra lo real
+del 17/nov: WAPE 0.1861 (v1.0.0: 0.1867), cobertura 89.1% (88.8%), AUC de crítico 0.977 (0.975). Las correcciones
+no buscan precisión sino eliminar fallas; con un solo día no se afirma mejora. Las corridas ya publicadas (v1.0.0)
+quedan como están; las nuevas llevan la versión 1.1.0.
+
+Objeciones a las propias correcciones (y por qué se mantienen):
+  - "El corte de M2 al inicio de mes ignora hasta ~20 días recientes."  Es exactamente el esquema con el que se
+    obtuvieron las cifras validadas (m2_gbm.predecir_backtest). Cambiarlo sería operar algo no validado.
+  - "Abortar sin el corte de 17:00 puede dejar días sin publicar."  Ocurrió una vez en 371 días (20/abr/2026). Sin
+    ese corte no hay saldo ni forma de detectar una carga parcial: publicar sería peor.
+  - "No abortar cuando falta DISPERSION puede pronosticar mal un día de pago."  Abortar daría falsas alarmas,
+    porque hay huecos naturales de hasta 18 días sin pagos. Se registra el aviso en cada corrida.
+  - "El doble cómputo duplica el tiempo."  De ~3 a ~7 minutos en una tarea nocturna. Es el costo de no publicar
+    un resultado corrupto.
+  - "Borrar respaldos es destructivo."  Solo se borran los .bak_perfil_* propios, siempre se conservan 5 y
+    nunca se tocan otros respaldos de la carpeta (probado).
+
+
+====================================================================================================================
+ 12. LA COPIA: QUÉ CONTIENE Y CÓMO VERIFICAR SU INTEGRIDAD
+====================================================================================================================
+Original (no se modificó durante la revisión; se conserva como referencia de investigación):
+  VELOCIDADES\prod_perfil_retiro      código v1.0.0 + backtests, cachés y resultados intermedios (out\, ~3 GB).
+                                      CONTIENE LOS DEFECTOS H1-H15: NO debe programarse ni usarse para producir.
+Copia de producción (la que se ejecuta):
+  VELOCIDADES\perfil_retiro_produccion   código v1.1.0, config, sql, tests, docs (con todas las evidencias),
+                                         evidencias\*.py, out\semilla_errores.parquet y out\cache\panel_20240101.parquet
+                                         (fijo, para las pruebas de integridad)
+No se copiaron (se regeneran o son de investigación): out\backtest, out\cache (salvo el panel de pruebas),
+out\modelos, out\ev10, logs y bases de prueba.
+
+Para verificar la integridad, cada archivo debe coincidir con su sha256:
+  (PowerShell)  Get-FileHash -Algorithm SHA256 <archivo>
+  (72 archivos; el propio LEEME no se incluye)
+  92d4db944b48ebe6648faf10680831cd7c96608ec5a1b1b466e326c96206f31c  README.md
+  56d4beabc4dc0ac750f82dd3a3fd76a3bb6c8aa966ab84a8bf603fecca40844a  correr_sombra.bat
+  81264016fd23f6cd9ed925656b26222c34e54766eafd37e4a5adba5180ffab04  config/config.yaml
+  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  perfil_retiro/__init__.py
+  3d57a007811470aefdc0785a173805a0cc346d83c2115d538b709f225b793fca  perfil_retiro/backtest.py
+  cd187b48595c8e707d325dbcca0132f646cdc3ddb70f5b5dacacc364e4894ab1  perfil_retiro/calibracion.py
+  3b38300ac0d931bec75aa256f662304f65b0596cfe267bdbe73f8d12b598e62f  perfil_retiro/calidad.py
+  dbd46ba2dd72579a0377e22bf4d14fe801dfaee1c81c9f813aebd697eec61c8c  perfil_retiro/cli.py
+  3ff87e719af4a67bfc748533d1502d52ac45cb25856f0b50db1cfcd4c6d016f1  perfil_retiro/config.py
+  973f9745b0ca4e3bf64a0ea31e758f64f0cde8984edc011152f1e4c33acb7c7c  perfil_retiro/contrato.py
+  90463da0938c1b1bdec48937c8490b73b7b7189458844467bd083f8aa7c980ed  perfil_retiro/evaluacion.py
+  718e08109eec7d1cac5c2fd586704bb1ae22f5786ada28fd9b462554ffe082f9  perfil_retiro/exportar.py
+  e04e49d37abc2f421cc9c70482a694cd81611182facf8dace8430adc0b9e6795  perfil_retiro/m2_gbm.py
+  cd6152e950ebc566e48b91a8eb1046a2672ab558dc9c83f44a80b3d74ebe6940  perfil_retiro/modelo.py
+  58131db4179c2604b1eda13f76a9fe9173ed474813c2fc3b85b868735a84054e  perfil_retiro/monitoreo.py
+  9969b946855f93bc97818051b774ec1979350da96e74ce7bfe7287ff1afd4f86  perfil_retiro/panel.py
+  102aa7146867a03c1b443d7ddb6612d92a80f1fa759f8b783e33fb6b3a604bc5  perfil_retiro/perfil.py
+  7649d9e1ed42719a0378578ff26c42419f6c94b68a7fc4d3bd4e363f759deb21  perfil_retiro/persistencia.py
+  16f5b53c63a64c0cb3c0c35247decbe067b804453764c51268cc7b5310ce6e39  perfil_retiro/pipeline.py
+  70be979807a3ac98f20cd70ed8e688725ada796a8a6c92f6264647fac323bd12  perfil_retiro/postgres_sync.py
+  2e3c29ba6888a40b1c9537477505ce6350039cb2092ea81dab77b346f1f0f23c  perfil_retiro/sources.py
+  3a34caf86e20de5138c95ffbbc9fbd1eefe06c0474b5dfd84d555c1bb5eac53c  sql/dispersion.sql
+  1f9ba94dcb35c493497e2c82db5c48adeb26a24a09228d0e87fd4e37ee8082c4  sql/fecha.sql
+  caa632a397e48e021638a4cdd88793c1d26ad9665f0f8539da64243e264224a3  sql/gestionada.sql
+  cf2a9342d091eecd5454e19434c6307fe6afa3deddb37aa02836861298b1a20d  sql/ingvar_monto.sql
+  601f19004527149fbc48e5b2edd217bf51bdf5f817c39331f5b777143e7a075e  sql/monitoreo_cortes.sql
+  a7e2d7c8ef8bfdd3e664d500f9be5c7c34ed50b22cb39b4440bcb6baf8da545c  sql/movimientos_diario.sql
+  f7fb1858655a3a66b503cd385572ea1383526a49fb65e936e387d137cb26cf07  sql/politica_visita.sql
+  d0f56b6ff2b80dc14eb606bfbac4dd9d1e027df2eb71ed83a0cbab044783e25c  sql/postgres/01_planeacion_perfil_retiro.sql
+  3df9f92c2fd053bd0a59005b22fa6f72014880a027f13fd5884d363584f8fa90  sql/postgres/02_grants_appserver.sql
+  d8243a1b0161d8d44507826e325577a927a1f5fa00be07b57dfca4a463b29673  sql/prediccion_ds.sql
+  44c982db087adcf4e9b8b4434059a440e33c34d08628e51959d8ac49cf22a5a0  sql/retiros.sql
+  f63bff65cd8f7c9a6ec73c45ce978e94e41727cb568b0de1ebcfe9ba5558db83  sql/saldos.sql
+  c12a402e9b6fc4c283adac0437b3286a2cf746b340361cdfa319fef28f0fde8c  sql/sucursal.sql
+  59e83d08cab5f5075958014413d63185b04c94341b3ed34e499b7f02894407ec  tests/test_destino.py
+  c172c5abd993d8104a430a0d0d1c6f0c52a2e23cfb526bd0e91b65bacee25011  tests/test_integridad.py
+  e523f10d6599a957a9c51d11549b7d2b5dd0afe68e0c924d7e49c9457f1dfa86  tests/test_produccion.py
+  3aec6c383d23cbc29439836b845499c6eaac0d0270e2fadcd650a32e97a2555c  evidencias/backtest_por_meses.sh
+  e17a130e6fcc65cba6c134effb941f1935e40e3314552fbfc9e112b1787b9ceb  evidencias/comun.py
+  2e4ce3aecc07846cd022b68069b4356b5c0653fa3e2fe7ee341e3f6a27d1d65d  evidencias/correr_backtest.py
+  643ec15555c3ab52f7b1d4e8f4b758dcbece9e5d86d3aabd48ce8208654faee2  evidencias/correr_m2.py
+  abc436d375bf056a8a3d0eb5a7db966f80ea91818e566a02cc56a56185090b2a  evidencias/ev01_conciliacion.py
+  6f371f79428a69602cf26c06f9ce7b11f8c447f986e4a4e15da3cf0067a27297  evidencias/ev02_ev03_cuarentena_inicio.py
+  8abfdb750c883bc1e9d7be0bf56f1f2f75d9d9233be4d0b7725eb6966ff1be6a  evidencias/ev04_ev05_intradia.py
+  f91856c23207eba009d5fce93c384ddecf6e36a413c20359ba29ca039b9d6594  evidencias/ev06_07_09_factores.py
+  2a2b128dfb599f178890ef6554a149a5983f7a1f004892092d8ae29e96e3c354  evidencias/ev08_programas_emergentes.py
+  6cc301b1f64235bf9bba7e43eccfc049792eec36e0e33e00029bcaa6a704c00f  evidencias/ev09b_ventana_perfil.py
+  bc801ac80123165fd5ceda650b693f4b023e367f449fb1c12f12a06ddd3c8b55  evidencias/ev10_politica.py
+  20ee0e625e94eb30003827dd9206e1206421a3252384813caf4d1b04e017b67f  evidencias/ev11_husos_apertura.py
+  b6c7b54c9589adebdd5ba13f83783ba17adfa850fd24e8fafdbccb0d93745cfe  evidencias/ev12_torneo.py
+  2c6bb1d8e0707debf654d47f470273f1e079d6767542a5637e9ea5b5d4d016ee  evidencias/ev14_perfil_validez.py
+  6acc7559227a04bab71947137bcba571bbaf80a6d604db988d982dc4dca26197  evidencias/ev15_riesgo_definiciones.py
+  b48ac032380f7b2cb57d846ee5e30a8b7af4c4e5def01093c7c93026b9a103e9  evidencias/ev16_estres_determinismo.py
+  076c89d9d84468cf5aadb29e365ac235621d380e67a12b51e38990ecbd021ec0  evidencias/ev16b_localizar.py
+  bf60fa1735c437bde7980cdd2e5ec25fee17ce9bc55fdea924a72d47f30b009a  evidencias/extraer_todo.py
+  a426190c1bf20ce00d282867cc46fa5ae699f8f12e7a18b64f97c3a62ff7b0f1  evidencias/generar_semilla.py
+  651ae3d006242649b42fb1f873732f6f1f8875781a04a8fa67ae7e10c8834e78  evidencias/resumen_bt.py
+  0768caedc1a5f99515057fec30e19dcdb7dd50c906e52deeea73baf8774d9d89  evidencias/unir_bloques.py
+  27ffc5b579832100941b99fd29eb59459150d88be659cbfc5b9486302786ae4f  docs/01_diagnostico.md
+  f189bfbec19286db0d1d433191bee5900af88f48f9f3449129444fdb8b20db4f  docs/02_metodologia.md
+  23b84648877646f8d6eab10a5b93be2c8c9b7358c7eb56c4183b215e18f0d540  docs/03_protocolo_preregistrado.md
+  e51d778c8e337db5921d8959e1c593f075d6c130f9b488f8abef82fc8d589490  docs/03_protocolo_preregistrado.sha256
+  c4162a2fffcd10924e05be7ea0f15c732db7df7306a4620584c287a2052ec471  docs/04_diccionario.md
+  1b8b647acdf82ac537b4438df65d835d994ebcae25009ebaf9f0dc636087a940  docs/05_operacion.md
+  44dccaec4d58fbb8746640ed66aa09ff667fa199c02c2b8c4056d10301d7b1a8  docs/congelamiento_holdout.txt
+  cea7cc714b824014ae41e75d9abcb186bf4921105382644e9502b30376610a3a  docs/evidencias/EV-16/estres_actual.json
+  9aeeb2ef01d7d9c7ad3808adb6d3f59f94eb8306019e5ec130ef97c0c91c5c01  docs/evidencias/EV-16/estres_actual_40.json
+  53aa68ef1551ecda9dd7112b160e77a6ca7ac3587cee280607d3930c842fa121  docs/evidencias/EV-16/estres_mkl_reproducible_40.json
+  73b1b1306d8bac61f7bcc7dec33a638b7a0bea09c29f6be3bd8eefe6d39185f3  docs/evidencias/EV-16/EV-16.md
+  2cccaf64de2dd0129083811f5e059c557d33058163011118dd87b6532a8aa90a  docs/evidencias/EV-16/localizar.json
+  0517fd822a69cdbf06dc8dacb46162f04607d227d755b74f050dc1d299e57b58  out/semilla_errores.parquet
+  af646c9fce9c60a51eae4fbf426a45f8623df573d064e745dbe722e3cec0f052  out/cache/panel_20240101.parquet
+
+
+====================================================================================================================
+ 13. PENDIENTES
+====================================================================================================================
+  P1  Registrar la tarea programada apuntando a ESTA carpeta (sección 6.3). Hoy no está registrada: por eso no hay
+      corridas desde el 20/nov.
+  P2  Verificar con el área de datos a qué hora se carga MOVIMIENTOS: al 23/nov seguía en el 19/nov.
+  P3  Rotar la contraseña expuesta en kilometraje\.env.example y dejar ahí solo valores de ejemplo.
+  P4  Revisar la estabilidad numérica de la máquina (EV-16): Windows Memory Diagnostic y actualización de BIOS y
+      controladores. Mientras tanto, la verificación protege la publicación.
+  P5  Conseguir la lista oficial de sucursales que abren a las 8:00 (L5).
+  P6  A las 4-6 semanas, leer el monitoreo y decidir la salida de la sombra con los cuatro criterios (6.6).

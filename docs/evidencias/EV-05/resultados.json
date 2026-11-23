@@ -1,0 +1,31 @@
+{
+  "sensibilidad": [
+    {
+      "apertura": 730,
+      "pct_pico_primer_intervalo": 0.1798330122029544,
+      "pct_pico_9_11": 0.24470134874759153,
+      "pct_pico_11_13": 0.575465639049454,
+      "pct_pico_13_17": 0.0,
+      "agresividad_mediana": 1.3212676524083915,
+      "pct_sucursales_mismo_pico_que_0800": 0.5831727681438664
+    },
+    {
+      "apertura": 800,
+      "pct_pico_primer_intervalo": 0.596660244059088,
+      "pct_pico_9_11": 0.1069364161849711,
+      "pct_pico_11_13": 0.2964033397559409,
+      "pct_pico_13_17": 0.0,
+      "agresividad_mediana": 1.4603484579250643,
+      "pct_sucursales_mismo_pico_que_0800": 1.0
+    },
+    {
+      "apertura": 830,
+      "pct_pico_primer_intervalo": 0.896917148362235,
+      "pct_pico_9_11": 0.03564547206165703,
+      "pct_pico_11_13": 0.0674373795761079,
+      "pct_pico_13_17": 0.0,
+      "agresividad_mediana": 1.655061585648406,
+      "pct_sucursales_mismo_pico_que_0800": 0.6997430956968529
+    }
+  ]
+}

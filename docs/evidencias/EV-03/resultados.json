@@ -1,0 +1,285 @@
+{
+  "primer_mes_estable": 202506,
+  "mensual": [
+    {
+      "mes": 202401,
+      "r_mediana_suc": 0.0033361928212692522,
+      "pct_dias_parcial": 1.0,
+      "n_programas": 4,
+      "pct_suc_dias_concilian": 0.062287065613852256,
+      "razon_suma_mov_mon": 0.11183880076721323
+    },
+    {
+      "mes": 202402,
+      "r_mediana_suc": 0.04895035116831965,
+      "pct_dias_parcial": 1.0,
+      "n_programas": 7,
+      "pct_suc_dias_concilian": 0.02880639738288882,
+      "razon_suma_mov_mon": 0.09370088765122464
+    },
+    {
+      "mes": 202403,
+      "r_mediana_suc": 0.3437054599146818,
+      "pct_dias_parcial": 1.0,
+      "n_programas": 8,
+      "pct_suc_dias_concilian": 0.27251732101616627,
+      "razon_suma_mov_mon": 0.4394605574084974
+    },
+    {
+      "mes": 202404,
+      "r_mediana_suc": 0.11938730884057491,
+      "pct_dias_parcial": 1.0,
+      "n_programas": 8,
+      "pct_suc_dias_concilian": 0.5447618359755877,
+      "razon_suma_mov_mon": 0.4939146776671142
+    },
+    {
+      "mes": 202405,
+      "r_mediana_suc": 0.0,
+      "pct_dias_parcial": 1.0,
+      "n_programas": 8,
+      "pct_suc_dias_concilian": 0.6143351195226694,
+      "razon_suma_mov_mon": 0.43191925797491576
+    },
+    {
+      "mes": 202406,
+      "r_mediana_suc": 0.08862580765296509,
+      "pct_dias_parcial": 1.0,
+      "n_programas": 9,
+      "pct_suc_dias_concilian": 0.6062741623711341,
+      "razon_suma_mov_mon": 0.382815725951286
+    },
+    {
+      "mes": 202407,
+      "r_mediana_suc": 0.984247006931317,
+      "pct_dias_parcial": 0.3225806451612903,
+      "n_programas": 9,
+      "pct_suc_dias_concilian": 0.7677505784922665,
+      "razon_suma_mov_mon": 0.6167507083600221
+    },
+    {
+      "mes": 202408,
+      "r_mediana_suc": 0.8913087873184156,
+      "pct_dias_parcial": 0.5,
+      "n_programas": 9,
+      "pct_suc_dias_concilian": 0.8273815379570422,
+      "razon_suma_mov_mon": 0.653290637212838
+    },
+    {
+      "mes": 202409,
+      "r_mediana_suc": 0.9936317757208678,
+      "pct_dias_parcial": 0.4,
+      "n_programas": 9,
+      "pct_suc_dias_concilian": 0.7223182544600633,
+      "razon_suma_mov_mon": 0.7942046305888535
+    },
+    {
+      "mes": 202410,
+      "r_mediana_suc": 0.8387096774193549,
+      "pct_dias_parcial": 0.7741935483870968,
+      "n_programas": 9,
+      "pct_suc_dias_concilian": 0.8156508905511018,
+      "razon_suma_mov_mon": 0.5076940626162681
+    },
+    {
+      "mes": 202411,
+      "r_mediana_suc": 0.9913492607223672,
+      "pct_dias_parcial": 0.4,
+      "n_programas": 9,
+      "pct_suc_dias_concilian": 0.8552014995313965,
+      "razon_suma_mov_mon": 0.9047650772174783
+    },
+    {
+      "mes": 202412,
+      "r_mediana_suc": 0.9661971341116925,
+      "pct_dias_parcial": 0.36666666666666664,
+      "n_programas": 9,
+      "pct_suc_dias_concilian": 0.8233819507748404,
+      "razon_suma_mov_mon": 0.6812037523560711
+    },
+    {
+      "mes": 202501,
+      "r_mediana_suc": 0.9975065365832309,
+      "pct_dias_parcial": 0.3225806451612903,
+      "n_programas": 11,
+      "pct_suc_dias_concilian": 0.7584987987075751,
+      "razon_suma_mov_mon": 0.8410585579327787
+    },
+    {
+      "mes": 202502,
+      "r_mediana_suc": 0.9567562475571125,
+      "pct_dias_parcial": 0.35714285714285715,
+      "n_programas": 12,
+      "pct_suc_dias_concilian": 0.8282080233793836,
+      "razon_suma_mov_mon": 0.7927228380301694
+    },
+    {
+      "mes": 202503,
+      "r_mediana_suc": 0.9887858089509634,
+      "pct_dias_parcial": 0.3548387096774194,
+      "n_programas": 12,
+      "pct_suc_dias_concilian": 0.86097553581714,
+      "razon_suma_mov_mon": 0.8614785635377598
+    },
+    {
+      "mes": 202504,
+      "r_mediana_suc": 0.9543344392634813,
+      "pct_dias_parcial": 0.3333333333333333,
+      "n_programas": 13,
+      "pct_suc_dias_concilian": 0.8332820765161767,
+      "razon_suma_mov_mon": 0.8566815322727913
+    },
+    {
+      "mes": 202505,
+      "r_mediana_suc": 0.9785581790171974,
+      "pct_dias_parcial": 0.37037037037037035,
+      "n_programas": 13,
+      "pct_suc_dias_concilian": 0.8401485698417106,
+      "razon_suma_mov_mon": 0.9090599090103533
+    },
+    {
+      "mes": 202506,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 13,
+      "pct_suc_dias_concilian": 0.9927731504164625,
+      "razon_suma_mov_mon": 0.9833175041800386
+    },
+    {
+      "mes": 202507,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 14,
+      "pct_suc_dias_concilian": 0.9926963033275326,
+      "razon_suma_mov_mon": 0.9770578690759611
+    },
+    {
+      "mes": 202508,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 15,
+      "pct_suc_dias_concilian": 0.9878861117660929,
+      "razon_suma_mov_mon": 0.9088457983576104
+    },
+    {
+      "mes": 202509,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.047619047619047616,
+      "n_programas": 16,
+      "pct_suc_dias_concilian": 0.9778109005005906,
+      "razon_suma_mov_mon": 0.9882312069513697
+    },
+    {
+      "mes": 202510,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 17,
+      "pct_suc_dias_concilian": 0.9875169907625732,
+      "razon_suma_mov_mon": 0.7638671021956256
+    },
+    {
+      "mes": 202511,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 17,
+      "pct_suc_dias_concilian": 0.9909643198569094,
+      "razon_suma_mov_mon": 0.7761479826879917
+    },
+    {
+      "mes": 202512,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.047619047619047616,
+      "n_programas": 18,
+      "pct_suc_dias_concilian": 0.9539291398927077,
+      "razon_suma_mov_mon": 0.9461431137514963
+    },
+    {
+      "mes": 202601,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 17,
+      "pct_suc_dias_concilian": 0.9925984380527362,
+      "razon_suma_mov_mon": 0.9908081250082499
+    },
+    {
+      "mes": 202602,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 18,
+      "pct_suc_dias_concilian": 0.9888105312646921,
+      "razon_suma_mov_mon": 0.9774364626049206
+    },
+    {
+      "mes": 202603,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 17,
+      "pct_suc_dias_concilian": 0.9926502261468878,
+      "razon_suma_mov_mon": 0.9854960692616233
+    },
+    {
+      "mes": 202604,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 17,
+      "pct_suc_dias_concilian": 0.9897997733282962,
+      "razon_suma_mov_mon": 0.9834426549528628
+    },
+    {
+      "mes": 202605,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 16,
+      "pct_suc_dias_concilian": 0.9943913983201554,
+      "razon_suma_mov_mon": 0.9938671534252933
+    },
+    {
+      "mes": 202606,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 16,
+      "pct_suc_dias_concilian": 0.9917421692984727,
+      "razon_suma_mov_mon": 0.9743339987277159
+    },
+    {
+      "mes": 202607,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 16,
+      "pct_suc_dias_concilian": 0.9946751097359142,
+      "razon_suma_mov_mon": 0.9758788862209001
+    },
+    {
+      "mes": 202608,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 18,
+      "pct_suc_dias_concilian": 0.9913840226982846,
+      "razon_suma_mov_mon": 0.9858230482131375
+    },
+    {
+      "mes": 202609,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 17,
+      "pct_suc_dias_concilian": 0.9938754170193697,
+      "razon_suma_mov_mon": 0.9930071863118993
+    },
+    {
+      "mes": 202610,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 17,
+      "pct_suc_dias_concilian": 0.982081566727236,
+      "razon_suma_mov_mon": 0.9768489073818624
+    },
+    {
+      "mes": 202611,
+      "r_mediana_suc": 1.0,
+      "pct_dias_parcial": 0.0,
+      "n_programas": 18,
+      "pct_suc_dias_concilian": 0.9940586290006166,
+      "razon_suma_mov_mon": 0.9945207992207643
+    }
+  ]
+}

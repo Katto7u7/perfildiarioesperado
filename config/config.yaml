@@ -1,0 +1,87 @@
+# Configuración del sistema de perfil de retiro por sucursal.
+# Rutas relativas a la carpeta prod_perfil_retiro/. Sin credenciales (van en .env).
+
+version_modelo: "1.1.0"          # 1.1.0 (2026-11-23): M2 con corte de entrenamiento determinista, conformal = método validado,
+                                 # compuerta MONITOREO@1700, horario de verano exacto (ver docs/05 §8)
+
+fuentes:
+  db_dir: "C:/Users/Gerardo/Desktop/DATABASES_LEGACY"   # bases productivas (solo lectura). Antes: ../DBs (exportación fija)
+  db11: "bancoDB11.db"                         # MOVIMIENTOS (demanda), DISPERSION, FECHA, SUCURSAL
+  db_saldos: "bancoDBSaldosYMonitoreo.db"      # MONITOREO_CORTE (forma intradía, saldos), SALDOS, RETIROS
+  db_operativo: "bancoDBOperativo.db"          # GESTIONADA, PREDICCION_DS (referencia)
+  db_plan: "bancoDBPlanificacion_minimo.db"    # tabla destino (solo DDL de referencia)
+  db_ingvar: "bancoDB11_INGVAR.db"             # INGENIERIA_VARIABLES (conciliación)
+  db_visita: "../../kilometraje/bancoDBPlanificacion_minimo_politica_visita.db"   # POLITICA_VISITA
+  tope_csv: "../Politica_sucursal/tope_por_sucursal.csv"                          # capacidad bóveda
+  politica_dir: "../Politica_sucursal/engine/salida"                              # política preliminar
+
+historia:
+  inicio_util: 20250602          # EV-03 debe justificarlo
+  programas_dispersion: [1, 2]   # AM, BECAS (calendario de letras)
+
+cortes:
+  horas: [900, 1100, 1300, 1700]
+  apertura_hhmm: 800             # EV-05 (supuesto histórico; el perfil usa la sección horario)
+  cierre_hhmm: 1700
+
+calidad:
+  tolerancia_traspaso: 0.05      # MONITOREO@1700 > MOVIMIENTOS*(1+tol) y > tol_abs -> día con traspaso
+  tolerancia_traspaso_abs: 50000
+  fechas_copia: [20261021]       # copias exactas detectadas (EV-01 las confirma/descubre)
+  fechas_parciales: [20250930]
+  min_cobertura_monitoreo_1700: 0.90   # D se aborta si < 90% de sucursales con retiro tienen corte 17:00 (histórico: 99.97%; 20260420 = 0%)
+
+perfil:
+  ventana_dias_habiles_regimen: 126   # EV-09: días válidos del régimen vigente (refuta ventana mezclada de 180)
+  min_dias_validos: 60
+  factor_umbral_critico: 1.0     # crítico: saldo < factor * P90 retiro esperado siguiente día (decisión usuario)
+  tope_cobertura_dias: 30        # tope de la razón saldo/demanda al promediar (evita explosión con demanda ~0)
+  fuerza_previa_riesgo: 20       # Beta-binomial: equivale a 20 días de evidencia en la tasa global
+
+tipo_perfil:                     # umbrales ABSOLUTOS calibrados por lift sobre lo realizado en t+1..t+20 (EV-14)
+  alto_riesgo_score: 0.10        # días en riesgo realizados 16.6% vs 5.0% base (lift 3.3); 16% de sucursales
+  quiebre_intradia_pct: 0.07     # quiebre intradía realizado 10.4% vs 2.5% base (lift 4.2)
+  sobredotada_cobertura_dias: 20 # 91% conserva >=14 días de cobertura en t+20; tasa crítica 1.0%
+  sobredotada_riesgo_max: 0.05
+  dispersion_intensidad: 10.0    # validez débil (rho 0.38, lift 1.41): se reporta como tal
+  volatil_score: 0.9             # volatilidad residual realizada +46% (lift 1.46)
+
+backtest:
+  desarrollo_desde: 20251201
+  desarrollo_hasta: 20260930
+  holdout_desde: 20261001
+  holdout_hasta: 20261113
+
+semilla: 20261118
+
+horario:                         # EV-11
+  apertura_local_hhmm: 900       # dato del negocio
+  apertura_transaccional_hhmm: 800
+  desfase_corte_horas: 0.85      # δ estimado (EV-11 H3); corte etiquetado hh:00 ~ 51 min de operación desde apertura
+  umbral_p900_apertura_8: 0.269  # inferencia de apertura 8:00 (centro) hasta tener lista oficial
+  offset_entidad:                # horas respecto al centro
+    "QUINTANA ROO": 1
+    "BAJA CALIFORNIA SUR": -1
+    "SONORA": -1
+    "SINALOA": -1
+    "NAYARIT": -1
+    "BAJA CALIFORNIA": -2        # -1 durante horario de verano de EUA
+
+modelo:
+  vida_media: 4                  # días hábiles; selección en desarrollo (docs/03 §8)
+  combinacion: "ENS_ALL"         # días AM: promedio(M1, NB, M2); otros: promedio(M1, M2). Ganador EV-12
+  conformal_n_suc: 120
+  conformal_n0: 10
+  m2_ventana_dias: 160
+  computos_verificacion: 2       # EV-16: se publica solo si 2 cómputos independientes coinciden bit a bit
+  computos_max: 5                # intentos máximos para lograr 2 coincidencias; si no, no se publica (código 1)
+
+destino:                         # decisión del usuario 2026-11-20
+  sqlite: "C:/Users/Gerardo/Desktop/DATABASES_LEGACY/bancoDBPlanificacion_minimo.db"   # base productiva (autorizado 2026-11-20); antes ../DBs/
+  respaldo_antes_de_primera_escritura: true
+  respaldos_a_conservar: 5       # se borran solo los .bak_perfil_AAAAMMDD más viejos (cada uno ~0.7 GB)
+  modo: "SOMBRA"                 # se registra en PERFIL_RUN.modo
+  postgres:
+    habilitado: true             # encendido por el usuario 2026-11-20 (Alan creó las tablas); requiere GRANTs de sql/postgres/02_grants_appserver.sql
+    env: "../../kilometraje/.env"   # PGHOST/PGPORT/PGDATABASE/PGUSER/PGPASSWORD; no se duplican secretos
+    esquema: "planeacion"

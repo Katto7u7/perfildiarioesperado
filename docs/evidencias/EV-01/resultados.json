@@ -1,0 +1,223 @@
+{
+  "movimientos": {
+    "filas_agregadas": 10433698,
+    "rango": [
+      20240101,
+      20261113
+    ],
+    "llaves_duplicadas(suc,prog,dia)": 36,
+    "llaves_duplicadas_con_montos_distintos": 35,
+    "monto_negativo": 0,
+    "max_fila": 10947086.0
+  },
+  "copias_detectadas": [
+    {
+      "fecha": 20261021,
+      "copia_de": 20261020,
+      "pct_identico": 1.0,
+      "n_suc": 2976
+    }
+  ],
+  "dias_habiles_sin_carga_desde_inicio_util": [
+    20251212,
+    20260402,
+    20260403,
+    20261102
+  ],
+  "fechas_no_habiles_con_movimiento": [],
+  "parciales_por_razon_mov_mon": [
+    {
+      "id_fecha": 20250610,
+      "mov": 453952787.75,
+      "mon": 1810227447.8,
+      "r_mediana_suc": 1.0,
+      "r_p25_suc": 1.0,
+      "pct_exacto": 0.8876547127895906,
+      "razon_totales": 0.2507711328218432,
+      "diagnostico": "TRASPASO_MASIVO_EN_MONITOREO"
+    },
+    {
+      "id_fecha": 20250627,
+      "mov": 486168261.69,
+      "mon": 1649619043.4099998,
+      "r_mediana_suc": 1.0,
+      "r_p25_suc": 0.9975349313939553,
+      "pct_exacto": 0.7264360520469693,
+      "razon_totales": 0.2947154760562295,
+      "diagnostico": "TRASPASO_MASIVO_EN_MONITOREO"
+    },
+    {
+      "id_fecha": 20250820,
+      "mov": 486709930.49,
+      "mon": 1051033833.6800001,
+      "r_mediana_suc": 1.0,
+      "r_p25_suc": 1.0,
+      "pct_exacto": 0.883248730964467,
+      "razon_totales": 0.4630773195814976,
+      "diagnostico": "TRASPASO_MASIVO_EN_MONITOREO"
+    },
+    {
+      "id_fecha": 20250910,
+      "mov": 1749049997.19,
+      "mon": 4220666777.31,
+      "r_mediana_suc": 1.0,
+      "r_p25_suc": 1.0,
+      "pct_exacto": 0.9035532994923858,
+      "razon_totales": 0.4144013468660371,
+      "diagnostico": "TRASPASO_MASIVO_EN_MONITOREO"
+    },
+    {
+      "id_fecha": 20250919,
+      "mov": 2392184006.27,
+      "mon": 9781631815.380001,
+      "r_mediana_suc": 1.0,
+      "r_p25_suc": 1.0,
+      "pct_exacto": 0.8670263408441764,
+      "razon_totales": 0.24455878644999554,
+      "diagnostico": "TRASPASO_MASIVO_EN_MONITOREO"
+    },
+    {
+      "id_fecha": 20250930,
+      "mov": 386861581.39,
+      "mon": 638934136.72,
+      "r_mediana_suc": 0.6742788461538461,
+      "r_p25_suc": 0.4521956848467606,
+      "pct_exacto": 0.05236432878451285,
+      "razon_totales": 0.6054795935242606,
+      "diagnostico": "PARCIAL"
+    },
+    {
+      "id_fecha": 20251023,
+      "mov": 458184286.38,
+      "mon": 1044095200.27,
+      "r_mediana_suc": 1.0,
+      "r_p25_suc": 1.0,
+      "pct_exacto": 0.8803554427165979,
+      "razon_totales": 0.4388338211510932,
+      "diagnostico": "TRASPASO_MASIVO_EN_MONITOREO"
+    },
+    {
+      "id_fecha": 20251027,
+      "mov": 372681860.79,
+      "mon": 1052858248.52,
+      "r_mediana_suc": 1.0,
+      "r_p25_suc": 1.0,
+      "pct_exacto": 0.8619485877499207,
+      "razon_totales": 0.353971544900634,
+      "diagnostico": "TRASPASO_MASIVO_EN_MONITOREO"
+    },
+    {
+      "id_fecha": 20251111,
+      "mov": 960602606.63,
+      "mon": 2116097833.0,
+      "r_mediana_suc": 1.0,
+      "r_p25_suc": 1.0,
+      "pct_exacto": 0.8673437004125675,
+      "razon_totales": 0.453949997797668,
+      "diagnostico": "TRASPASO_MASIVO_EN_MONITOREO"
+    },
+    {
+      "id_fecha": 20251118,
+      "mov": 1095219195.72,
+      "mon": 2368969857.82,
+      "r_mediana_suc": 1.0,
+      "r_p25_suc": 1.0,
+      "pct_exacto": 0.8010155506188512,
+      "razon_totales": 0.46231875517734733,
+      "diagnostico": "TRASPASO_MASIVO_EN_MONITOREO"
+    },
+    {
+      "id_fecha": 20251209,
+      "mov": 732334611.98,
+      "mon": 1171197657.3,
+      "r_mediana_suc": 0.6807222283386546,
+      "r_p25_suc": 0.5448259783738008,
+      "pct_exacto": 0.04823865439543002,
+      "razon_totales": 0.625286950853603,
+      "diagnostico": "PARCIAL"
+    },
+    {
+      "id_fecha": 20251212,
+      "mov": 0.0,
+      "mon": 1022716654.26,
+      "r_mediana_suc": NaN,
+      "r_p25_suc": NaN,
+      "pct_exacto": 0.0,
+      "razon_totales": 0.0,
+      "diagnostico": "CARGA_FALTANTE"
+    },
+    {
+      "id_fecha": 20260402,
+      "mov": 0.0,
+      "mon": 649550221.71,
+      "r_mediana_suc": NaN,
+      "r_p25_suc": NaN,
+      "pct_exacto": 0.0,
+      "razon_totales": 0.0,
+      "diagnostico": "CARGA_FALTANTE"
+    },
+    {
+      "id_fecha": 20260403,
+      "mov": 0.0,
+      "mon": 649644341.01,
+      "r_mediana_suc": NaN,
+      "r_p25_suc": NaN,
+      "pct_exacto": 0.0,
+      "razon_totales": 0.0,
+      "diagnostico": "CARGA_FALTANTE"
+    },
+    {
+      "id_fecha": 20260814,
+      "mov": 698902866.51,
+      "mon": 2766086497.9,
+      "r_mediana_suc": 0.9889329524069727,
+      "r_p25_suc": 0.9624133633702263,
+      "pct_exacto": 0.17070835992342054,
+      "razon_totales": 0.2526684783865594,
+      "diagnostico": "PARCIAL_LEVE_SOSPECHOSO"
+    },
+    {
+      "id_fecha": 20261021,
+      "mov": 321499087.44,
+      "mon": 381466026.85,
+      "r_mediana_suc": 1.0329252539372584,
+      "r_p25_suc": 0.5455300782303749,
+      "pct_exacto": 0.0,
+      "razon_totales": 0.8427987417249605,
+      "diagnostico": "PARCIAL_LEVE_SOSPECHOSO"
+    }
+  ],
+  "razon_mov_mon_mediana": 0.8928043228569271,
+  "clases_discrepancia_mov_vs_mon17": [
+    {
+      "clase": "CARGA_FALTANTE",
+      "n": 9445,
+      "pct": 0.008117008678195196
+    },
+    {
+      "clase": "COPIA",
+      "n": 3131,
+      "pct": 0.0026907733373667717
+    },
+    {
+      "clase": "DENTRO_TOLERANCIA",
+      "n": 198972,
+      "pct": 0.1709960244275124
+    },
+    {
+      "clase": "EXACTO",
+      "n": 915967,
+      "pct": 0.7871796810948035
+    },
+    {
+      "clase": "MON_MAYOR(traspaso/otros)",
+      "n": 36078,
+      "pct": 0.031005340295598337
+    },
+    {
+      "clase": "MOV_MAYOR",
+      "n": 13,
+      "pct": 1.1172166523720229e-05
+    }
+  ]
+}

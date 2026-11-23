@@ -1,0 +1,79 @@
+{
+  "impacto_error_fin_de_semana": {
+    "IMPAR": {
+      "stock_seguridad_base": {
+        "suma_orig_M": 2019.45,
+        "suma_fix_M": 1993.65,
+        "exceso_M": 25.8,
+        "pct_sucursales_afectadas": 0.4864688620802087,
+        "exceso_p90_sucursal": 30000.0,
+        "exceso_max_sucursal": 340000.0
+      },
+      "saldo_minimo_operativo": {
+        "suma_orig_M": 3170.74,
+        "suma_fix_M": 3094.54,
+        "exceso_M": 76.2,
+        "pct_sucursales_afectadas": 0.6299315291816107,
+        "exceso_p90_sucursal": 90000.0,
+        "exceso_max_sucursal": 720000.0
+      },
+      "saldo_maximo_operativo": {
+        "suma_orig_M": 4905.23,
+        "suma_fix_M": 4826.52,
+        "exceso_M": 78.71,
+        "pct_sucursales_afectadas": 0.6276491685686338,
+        "exceso_p90_sucursal": 90000.0,
+        "exceso_max_sucursal": 720000.0
+      }
+    },
+    "PAR": {
+      "stock_seguridad_base": {
+        "suma_orig_M": 1028.65,
+        "suma_fix_M": 996.59,
+        "exceso_M": 32.06,
+        "pct_sucursales_afectadas": 0.5940658624062601,
+        "exceso_p90_sucursal": 30000.0,
+        "exceso_max_sucursal": 220000.0
+      },
+      "saldo_minimo_operativo": {
+        "suma_orig_M": 3117.13,
+        "suma_fix_M": 2995.25,
+        "exceso_M": 121.88,
+        "pct_sucursales_afectadas": 0.7714378871861755,
+        "exceso_p90_sucursal": 120000.0,
+        "exceso_max_sucursal": 1360000.0
+      },
+      "saldo_maximo_operativo": {
+        "suma_orig_M": 4693.43,
+        "suma_fix_M": 4568.95,
+        "exceso_M": 124.48,
+        "pct_sucursales_afectadas": 0.7714378871861755,
+        "exceso_p90_sucursal": 120000.0,
+        "exceso_max_sucursal": 1360000.0
+      }
+    }
+  },
+  "concordancia_umbral": {
+    "n": 3067,
+    "spearman_p90_vs_saldo_minimo": 0.7814841345528348,
+    "spearman_p90_vs_stock_seguridad": 0.7506360363142672,
+    "razon_saldo_minimo_sobre_p90_mediana": 1.0618327992567171,
+    "razon_saldo_minimo_sobre_p90_p10_p90": [
+      0.9335716844179699,
+      3.1033932803465305
+    ],
+    "pct_saldo_minimo_menor_que_p90": 0.2931203130094555
+  },
+  "sobredotacion": {
+    "n_suc": 3109,
+    "pct_dias_sobre_max_global": 0.5902600763724083,
+    "pct_dias_sobre_capacidad_global": 0.0029420956510698973,
+    "distribucion_pct_dias_sobre_max_por_sucursal": {
+      "0.25": 0.459,
+      "0.5": 0.613,
+      "0.75": 0.735,
+      "0.9": 0.843
+    },
+    "sucursales_con_mas_de_50pct_dias_sobre_max": 2167
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "H1_H2_alineacion": [
+    {
+      "zona": "NOROESTE_INV(-2)",
+      "corte_centro": 900,
+      "tau_horas_desde_9_local": -2.0,
+      "fraccion_mediana": 0.03638201111672562,
+      "n_suc": 20.0
+    },
+    {
+      "zona": "PACIFICO(-1)",
+      "corte_centro": 900,
+      "tau_horas_desde_9_local": -1.0,
+      "fraccion_mediana": 0.0,
+      "n_suc": 208.0
+    },
+    {
+      "zona": "CENTRO",
+      "corte_centro": 900,
+      "tau_horas_desde_9_local": 0.0,
+      "fraccion_mediana": 0.18467109233554616,
+      "n_suc": 2882.0
+    },
+    {
+      "zona": "NOROESTE_INV(-2)",
+      "corte_centro": 1100,
+      "tau_horas_desde_9_local": 0.0,
+      "fraccion_mediana": 0.20458791003511917,
+      "n_suc": 20.0
+    },
+    {
+      "zona": "PACIFICO(-1)",
+      "corte_centro": 1100,
+      "tau_horas_desde_9_local": 1.0,
+      "fraccion_mediana": 0.35757965883488896,
+      "n_suc": 208.0
+    },
+    {
+      "zona": "SURESTE(+1)",
+      "corte_centro": 900,
+      "tau_horas_desde_9_local": 1.0,
+      "fraccion_mediana": 0.3759375151739258,
+      "n_suc": 24.0
+    },
+    {
+      "zona": "CENTRO",
+      "corte_centro": 1100,
+      "tau_horas_desde_9_local": 2.0,
+      "fraccion_mediana": 0.47954133977066987,
+      "n_suc": 2882.0
+    },
+    {
+      "zona": "NOROESTE_INV(-2)",
+      "corte_centro": 1300,
+      "tau_horas_desde_9_local": 2.0,
+      "fraccion_mediana": 0.5313610704578716,
+      "n_suc": 20.0
+    },
+    {
+      "zona": "PACIFICO(-1)",
+      "corte_centro": 1300,
+      "tau_horas_desde_9_local": 3.0,
+      "fraccion_mediana": 0.7264125680621262,
+      "n_suc": 208.0
+    },
+    {
+      "zona": "SURESTE(+1)",
+      "corte_centro": 1100,
+      "tau_horas_desde_9_local": 3.0,
+      "fraccion_mediana": 0.617998779202807,
+      "n_suc": 24.0
+    },
+    {
+      "zona": "CENTRO",
+      "corte_centro": 1300,
+      "tau_horas_desde_9_local": 4.0,
+      "fraccion_mediana": 0.803371713239418,
+      "n_suc": 2882.0
+    },
+    {
+      "zona": "SURESTE(+1)",
+      "corte_centro": 1300,
+      "tau_horas_desde_9_local": 5.0,
+      "fraccion_mediana": 0.9033293313838043,
+      "n_suc": 24.0
+    }
+  ],
+  "ajuste": {
+    "k": 0.23659250321216016,
+    "b": 1.0009999999999997,
+    "delta_horas": 0.8526314830670657,
+    "delta_minutos": 51.15788898402394,
+    "ic95_delta_horas": [
+      0.7789551804393061,
+      0.8104429613353489
+    ],
+    "rmse": 0.045521676973359744
+  },
+  "fraccion_esperada_primer_corte": {
+    "abre_9_local": 0.18265505071536292,
+    "abre_8_local": 0.35505424975094213,
+    "umbral": 0.2688546502331525
+  },
+  "H4_centro_inferidas_8am": {
+    "n": 269,
+    "de": 2882,
+    "p1100_mediana_8am": 0.6103606874848705,
+    "p1100_mediana_9am": 0.48240744356118637,
+    "p1100_esperado_si_8am": 0.5985747551056679,
+    "p1100_esperado_si_9am": 0.4911586824976697
+  }
+}
