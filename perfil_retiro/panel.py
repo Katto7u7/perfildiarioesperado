@@ -72,19 +72,15 @@ def calendario_operativo(fecha: pd.DataFrame, disp: pd.DataFrame) -> pd.DataFram
     op["pos_quincena"] = op.es_quincena.shift(1, fill_value=False)
     op = op.drop(columns=["ym"])
 
-    # dispersión: monto/beneficiarios por fecha y programa (repetidos por letra -> max)
-    d = disp[disp.id_programa.isin([1, 2])].copy()
-    agg = d.groupby(["id_fecha", "id_programa"]).agg(
-        n_letras=("letra", "nunique"), segundo=("is_second_letterday", "max"),
-        primero=("is_second_letterday", lambda s: int((s == 0).any())),
-        monto=("monto", "max"), benef=("numero_beneficiarios", "max")).reset_index()
+    # dispersión: una fila por fecha y programa (sources.agrupar_dispersion)
+    d = disp[disp.id_programa.isin([1, 2])]
     for pid, nom in ((1, "am"), (2, "becas")):
-        a = agg[agg.id_programa == pid].set_index("id_fecha")
+        a = d[d.id_programa == pid].set_index("id_fecha")
         op[f"disp_{nom}"] = op.id_fecha.isin(a.index)
         op[f"disp_{nom}_segundo"] = op.id_fecha.map(a.segundo).fillna(0).astype(int).astype(bool)
         op[f"disp_{nom}_primero"] = op.id_fecha.map(a.primero).fillna(0).astype(int).astype(bool)
         op[f"disp_{nom}_monto"] = op.id_fecha.map(a.monto).fillna(0.0)
-        op[f"disp_{nom}_benef"] = op.id_fecha.map(a.benef).fillna(0.0)
+        op[f"disp_{nom}_benef"] = op.id_fecha.map(a.numero_beneficiarios).fillna(0.0)
         op[f"disp_{nom}_letras"] = op.id_fecha.map(a.n_letras).fillna(0).astype(int)
     # "Saldo pendiente de retirar" de dispersiones ANTERIORES (no incluye el día): Σ monto(d') λ^(Δ días hábiles - 1).
     # Solo el primer día de cada letra aporta monto (el segundo día repite el mismo monto en DISPERSION).

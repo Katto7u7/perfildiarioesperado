@@ -35,10 +35,11 @@ PK = {"PERFIL_RETIRO_SUCURSAL": ["id_politica_run", "id_sucursal"],
 TIPO_PG = {"INTEGER": "integer", "REAL": "double precision", "TEXT": "text", "NUMERIC": "double precision"}
 
 
-def load_dotenv(path: Path) -> None:
+def leer_dotenv(path: Path) -> dict:
     if not path.exists():
         raise FileNotFoundError(f"No existe el archivo de credenciales {path}")
-    for raw in path.read_text(encoding="utf-8").splitlines():
+    valores = {}
+    for raw in path.read_text(encoding="utf-8-sig").splitlines():
         line = raw.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
@@ -48,17 +49,24 @@ def load_dotenv(path: Path) -> None:
         v = v.split(" #")[0].strip()
         if len(v) >= 2 and v[0] == v[-1] and v[0] in "'\"":
             v = v[1:-1]
-        os.environ.setdefault(k.strip(), v)
+        valores.setdefault(k.strip(), v)
+    return valores
 
 
-def connection_kwargs() -> dict:
-    if os.getenv("DATABASE_URL"):
-        return {"dsn": os.getenv("DATABASE_URL")}
-    falt = [n for n in ("PGHOST", "PGDATABASE", "PGUSER", "PGPASSWORD") if not os.getenv(n)]
+def load_dotenv(path: Path) -> None:
+    for k, v in leer_dotenv(path).items():
+        os.environ.setdefault(k, v)
+
+
+def connection_kwargs(env=None) -> dict:
+    env = os.environ if env is None else env
+    if env.get("DATABASE_URL"):
+        return {"dsn": env.get("DATABASE_URL")}
+    falt = [n for n in ("PGHOST", "PGDATABASE", "PGUSER", "PGPASSWORD") if not env.get(n)]
     if falt:
         raise SystemExit("Faltan variables de conexión: " + ", ".join(falt))
-    return {"host": os.getenv("PGHOST"), "port": int(os.getenv("PGPORT", "5432")), "dbname": os.getenv("PGDATABASE"),
-            "user": os.getenv("PGUSER"), "password": os.getenv("PGPASSWORD"), "sslmode": os.getenv("PGSSLMODE", "prefer")}
+    return {"host": env.get("PGHOST"), "port": int(env.get("PGPORT") or 5432), "dbname": env.get("PGDATABASE"),
+            "user": env.get("PGUSER"), "password": env.get("PGPASSWORD"), "sslmode": env.get("PGSSLMODE") or "prefer"}
 
 
 def ddl_pg(con_sqlite, tabla: str, esquema: str) -> str:

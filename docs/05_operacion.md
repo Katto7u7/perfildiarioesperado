@@ -36,6 +36,13 @@ Carpeta que se ejecuta: `VELOCIDADES/perfil_retiro_produccion/`. Intérprete: `C
 - `PERFIL_RUN` guarda versión, hash de configuración, huella de insumos y parámetros completos: la corrida se puede reconstruir. El código es determinista, pero **esta máquina no siempre lo es**: de 5 reconstrucciones del 13/nov, 3 fueron idénticas bit a bit (una reentrenando M2 desde cero), 1 salió distinta en silencio y 1 falló (EV-16). Por eso la publicación exige cómputo verificado.
 - M2 se entrena con datos hasta el primer día operativo del mes de la fecha de corte (el esquema validado en el backtest). Reprocesar cualquier fecha nunca usa datos posteriores a ella.
 
+## 3.1 Origen de las fuentes (`.env`)
+- `FUENTE=sqlite` (por defecto) o `FUENTE=postgres` en el `.env` de la raíz (plantilla: `.env.example`). Con Postgres se usan `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` de ese archivo, con una sesión de solo lectura. No afecta el destino, que sigue usando `kilometraje/.env`.
+- Tablas leídas: `sucursal.movimientos`, `.fecha`, `.dispersion`, `.sucursal`, `saldos_monitoreo.monitoreo_corte` y `dboperativo_u.programas_emergentes`.
+- `DISPERSION` se consolida a una fila por fecha y programa; las filas repetidas cuentan una sola vez.
+- Al cambiar de fuente cambia la huella de insumos y, por lo tanto, `id_politica_run`.
+- **Datos observados en Postgres el 2026-11-25** (no corregidos por el código): MOVIMIENTOS duplicado en 20260324 y 20260821 (esas filas quedan `DUPLICADO` y se excluyen) e incompleto en 20260114 y 20260305. La detección de cargas parciales solo revisa el día de corte: corregirlos antes de producir desde Postgres. `check-sources` los lista.
+
 ## 4. Escrituras
 - **Destino:** `C:/Users/Gerardo/Desktop/DATABASES_LEGACY/bancoDBPlanificacion_minimo.db` (autorizado por el usuario el 2026-11-20).
   - Se escribe en `PERFIL_RETIRO_SUCURSAL` y `_CORTE`, que ya existían. Si faltan, la corrida aborta: no se crean.

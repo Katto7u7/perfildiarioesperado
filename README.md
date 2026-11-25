@@ -39,3 +39,17 @@ C:/ProgramData/anaconda3/python.exe -m perfil_retiro.monitoreo
 ```
 Las bases fuente se abren en solo lectura. `run-daily` escribe en la base destino de `config.yaml` (con respaldo previo)
 y, si `destino.postgres.habilitado` es `true`, vuelca a Postgres.
+
+## Origen de las fuentes (`.env`)
+Copiar `.env.example` a `.env` y elegir `FUENTE`:
+
+| FUENTE | De dónde se leen | Consultas |
+|---|---|---|
+| `sqlite` (por defecto) | archivos `.db` de `config.yaml` → `fuentes` | `sql/*.sql` |
+| `postgres` | servidor definido por `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` | `sql/fuentes_pg/*.sql` |
+
+- Solo cambia la **lectura**. El destino sigue siendo SQLite y su volcado a Postgres (`destino` en `config.yaml`).
+- Una variable de entorno `FUENTE` gana sobre el `.env`.
+- Las consultas que solo usan `evidencias/` (saldos, retiros, gestionada, prediccion_ds, politica_visita, ingvar_monto)
+  no tienen versión Postgres; varios scripts de `evidencias/` además abren los `.db` directamente.
+- `check-sources` informa la fuente activa y las fechas de MOVIMIENTOS duplicadas o incompletas (solo avisa).

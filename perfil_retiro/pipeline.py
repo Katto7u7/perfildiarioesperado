@@ -90,13 +90,8 @@ def _conformal_un_origen(punto: pd.DataFrame, errores: pd.DataFrame, n_suc=120, 
 
 def _programas_emergentes(cfg) -> pd.DataFrame | None:
     """PROGRAMAS_EMERGENTES (LEEN/LCEN): fuente opcional. Solo se usa lo solicitado <= fecha de corte."""
-    import sqlite3
     try:
-        con = sqlite3.connect("file:" + cfg.ruta("db_operativo").as_posix() + "?mode=ro", uri=True)
-        pe = pd.read_sql("select evento_codigo, id_sucursal, id_fecha_solicitud, id_fecha_evento from PROGRAMAS_EMERGENTES "
-                         "order by id_sucursal, id_fecha_solicitud, evento_codigo", con)
-        con.close()
-        return pe
+        return extraer(cfg, "programas_emergentes", usar_cache=False)
     except Exception as e:  # noqa: BLE001
         log.warning("PROGRAMAS_EMERGENTES no disponible: %s", e)
         return None
