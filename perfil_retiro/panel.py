@@ -2,6 +2,7 @@
 
 Anti-fuga: `construir_panel` recibe datos ya acotados a <= fecha_corte; el calendario
 (FECHA + reglas de cierre bancario + DISPERSION) es información publicada por adelantado.
+DISPERSION se usa solo como calendario; las medidas de tamaño salen del retiro real (agregar_retiro_real).
 """
 from __future__ import annotations
 
@@ -79,27 +80,62 @@ def calendario_operativo(fecha: pd.DataFrame, disp: pd.DataFrame) -> pd.DataFram
         op[f"disp_{nom}"] = op.id_fecha.isin(a.index)
         op[f"disp_{nom}_segundo"] = op.id_fecha.map(a.segundo).fillna(0).astype(int).astype(bool)
         op[f"disp_{nom}_primero"] = op.id_fecha.map(a.primero).fillna(0).astype(int).astype(bool)
-        op[f"disp_{nom}_monto"] = op.id_fecha.map(a.monto).fillna(0.0)
-        op[f"disp_{nom}_benef"] = op.id_fecha.map(a.numero_beneficiarios).fillna(0.0)
         op[f"disp_{nom}_letras"] = op.id_fecha.map(a.n_letras).fillna(0).astype(int)
-    # "Saldo pendiente de retirar" de dispersiones ANTERIORES (no incluye el día): Σ monto(d') λ^(Δ días hábiles - 1).
-    # Solo el primer día de cada letra aporta monto (el segundo día repite el mismo monto en DISPERSION).
     op = op.sort_values("id_fecha").reset_index(drop=True)
-    for nom in ("am", "becas"):
-        aporte = np.where(op[f"disp_{nom}_primero"], op[f"disp_{nom}_monto"], 0.0) / 1e9
-        for vm in (2, 8):
-            lam = 0.5 ** (1 / vm)
-            st = np.zeros(len(op))
-            acc = 0.0
-            for i in range(len(op)):
-                st[i] = acc                       # stock antes del día i (solo días previos)
-                acc = acc * lam + aporte[i]
-            op[f"stock_{nom}_h{vm}"] = np.log1p(st)
     otros = set(disp[~disp.id_programa.isin([1, 2])].id_fecha)
     op["disp_otro"] = op.id_fecha.isin(otros)
     op["disp_alguna"] = op.disp_am | op.disp_becas | op.disp_otro
     return c.merge(op.drop(columns=["dia", "mes", "anio", "is_holiday", "fecha", "dow", "cierre_bancario", "operativo", "regimen"]),
                    on="id_fecha", how="left")
+
+
+def agregar_retiro_real(cal: pd.DataFrame, disp: pd.DataFrame, mv: pd.DataFrame, excluir=()) -> pd.DataFrame:
+    """Agrega al calendario las medidas de tamaño de pago, tomadas del retiro REAL (MOVIMIENTOS), nunca de DISPERSION.
+
+    Cada fecha d usa solo retiros de fechas anteriores a d. Total nacional por fecha y programa (1 = AM, 2 = BECAS),
+    sin las fechas de `excluir` (copias, parciales) ni las que MOVIMIENTOS trae duplicadas o con menos de la mitad de
+    las sucursales habituales (mediana de las 10 fechas operativas previas).
+    - disp_am_retiro_ref: en días de pago AM, para cada letra (y primer/segundo día) la mediana del retiro AM en sus
+      últimos 3 pagos anteriores; se promedian las letras. NaN si ninguna tiene antecedentes.
+    - stock_{am,becas}_h{2,8}: log1p de Σ retiro(d') λ^(Δ días hábiles - 1) sobre días de pago anteriores, en miles de
+      millones; vida media de 2 y 8 días hábiles.
+    """
+    c = cal.copy()
+    op = c[c.operativo].sort_values("id_fecha")
+    fechas = op.id_fecha.tolist()
+    m = mv[mv.id_fecha.isin(fechas)]
+    n = m.groupby("id_fecha").id_sucursal.nunique()
+    incompletas = n[n < 0.5 * n.shift(1).rolling(10, min_periods=3).median()].index
+    dup = (m.n_filas > 1).groupby(m.id_fecha).mean()
+    malas = set(excluir) | set(incompletas) | set(dup[dup > 0.5].index)
+    total = m[~m.id_fecha.isin(malas)].groupby(["id_fecha", "id_programa"]).monto.sum().to_dict()
+
+    letras = {r.id_fecha: [(x, 0) for x in r.letras.split(",") if x] + [(x, 1) for x in r.letras_segundo.split(",") if x]
+              for r in disp[disp.id_programa == 1].itertuples(index=False)}
+    historia: dict = {}
+    ref = np.full(len(fechas), np.nan)
+    for i, d in enumerate(fechas):
+        hoy = letras.get(d, [])
+        previos = [np.median(historia[k][-3:]) for k in hoy if k in historia]
+        if previos:
+            ref[i] = np.mean(previos)
+        if (d, 1) in total:                         # se registra DESPUÉS de calcular la referencia de d
+            for k in hoy:
+                historia.setdefault(k, []).append(total[(d, 1)])
+    nuevas = pd.DataFrame({"disp_am_retiro_ref": ref}, index=op.index)
+
+    for pid, nom in ((1, "am"), (2, "becas")):
+        pago = op[f"disp_{nom}"].astype(bool).values
+        aporte = np.array([total.get((d, pid), 0.0) if p else 0.0 for d, p in zip(fechas, pago)]) / 1e9
+        for vm in (2, 8):
+            lam = 0.5 ** (1 / vm)
+            st = np.zeros(len(fechas))
+            acc = 0.0
+            for i in range(len(fechas)):
+                st[i] = acc                       # acumulado antes del día i (solo días previos)
+                acc = acc * lam + aporte[i]
+            nuevas[f"stock_{nom}_h{vm}"] = np.log1p(st)
+    return c.join(nuevas)
 
 
 # --------------------------------------------------------------------------- intradía

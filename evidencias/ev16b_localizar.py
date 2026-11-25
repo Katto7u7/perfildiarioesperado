@@ -16,8 +16,7 @@ import pandas as pd  # noqa: E402
 
 from perfil_retiro.config import cargar_config  # noqa: E402
 from perfil_retiro.modelo import M1  # noqa: E402
-from perfil_retiro.panel import calendario_operativo  # noqa: E402
-from perfil_retiro.sources import extraer  # noqa: E402
+from comun import calendario_op  # noqa: E402
 
 
 def hobj(x):
@@ -28,7 +27,7 @@ def hobj(x):
 
 N = int(sys.argv[1])
 cfg = cargar_config()
-cal = calendario_operativo(extraer(cfg, "fecha", usar_cache=False), extraer(cfg, "dispersion", usar_cache=False))
+cal = calendario_op()
 p = pd.read_parquet(RAIZ / "out" / "cache" / "panel_20240101.parquet")
 D, T = 20261030, 20261103
 v = p[p.valido & (p.id_fecha <= D) & (p.id_fecha >= 20250602)].copy()

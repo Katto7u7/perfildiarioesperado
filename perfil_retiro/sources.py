@@ -103,19 +103,17 @@ def agrupar_dispersion(d: pd.DataFrame) -> pd.DataFrame:
     """Una fila por (fecha, programa) con sus letras juntas; las filas repetidas cuentan una sola vez.
 
     `letras` / `letras_segundo`: letras (separadas por coma) en su primer / segundo día; letra nula = "?".
-    `n_letras` no cuenta las nulas. `monto` y beneficiarios: máximo del grupo (vienen repetidos por letra).
+    `n_letras` no cuenta las nulas.
     """
     llave = ["id_fecha", "id_programa"]
     x = d.assign(_l=d.letra.fillna("?").astype(str), _2=d.is_second_letterday == 1,
                  _1=(d.is_second_letterday == 0).astype(int))
     out = x.groupby(llave).agg(
-        n_letras=("letra", "nunique"), primero=("_1", "max"), segundo=("is_second_letterday", "max"),
-        monto=("monto", "max"), numero_beneficiarios=("numero_beneficiarios", "max"))
+        n_letras=("letra", "nunique"), primero=("_1", "max"), segundo=("is_second_letterday", "max"))
     for col, m in (("letras", ~x["_2"]), ("letras_segundo", x["_2"])):
         juntas = x[m].groupby(llave)["_l"].agg(lambda s: ",".join(sorted(set(s))))
         out[col] = juntas.reindex(out.index).fillna("")
-    return out.reset_index()[llave + ["letras", "letras_segundo", "n_letras", "primero", "segundo", "monto",
-                                      "numero_beneficiarios"]]
+    return out.reset_index()[llave + ["letras", "letras_segundo", "n_letras", "primero", "segundo"]]
 
 
 def extraer(cfg: Config, nombre: str, desde: int = 19000101, hasta: int = 29991231,

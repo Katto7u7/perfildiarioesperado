@@ -59,7 +59,7 @@
 | frac_900/1100/1300 | fracción acumulada esperada del retiro por corte (sucursal × tipo de día) |
 | dias_cobertura_p50 / p90 | saldo inicial / retiro_p50 o retiro_p90 publicados |
 | nivel_confianza | ALTA / MEDIA / BAJA / INSUFICIENTE según WAPE y cobertura fuera de muestra de los últimos 60 días |
-| factores | JSON con las principales contribuciones (%) al pronóstico (día de letra, saldo pendiente, día de la semana, letras propias…) |
+| factores | JSON con las principales contribuciones (%) al pronóstico (día de letra, retiro reciente, retiro de ciclos previos, día de la semana, letras propias…) |
 
 ## `PERFIL_RUN` (bitácora de corridas)
 | Columna | Significado |

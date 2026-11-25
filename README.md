@@ -1,4 +1,4 @@
-# perfil_retiro_produccion — Perfil de retiro y pronóstico diario por sucursal (versión 1.1.0)
+# perfil_retiro_produccion — Perfil de retiro y pronóstico diario por sucursal (versión 1.2.0)
 
 Copia de producción de `prod_perfil_retiro/` (revisión del 2026-11-23). **Esta es la carpeta que debe ejecutarse.**
 La guía completa (qué hace, cómo se ejecuta, condiciones, limitaciones) está en `LEEME_PERFIL_RETIRO.txt`.
@@ -10,7 +10,7 @@ sql/                      consultas de extracción (:desde, :hasta = fecha de co
 perfil_retiro/
   sources.py              extracción de solo lectura + huella de insumos
   calidad.py              detección de días copiados y cargas parciales
-  panel.py                calendario operativo (cierres bancarios, quincenas, dispersión, saldos pendientes) + panel limpio
+  panel.py                calendario operativo (cierres bancarios, quincenas, calendario de dispersión, retiro reciente) + panel limpio
   modelo.py               M1 (nivel por régimen, efectos contraídos, letras propias) y métodos de referencia B0/B1/B2/NB
   m2_gbm.py               M2 gradient boosting
   backtest.py             simulación histórica día a día sin fuga (investigación)

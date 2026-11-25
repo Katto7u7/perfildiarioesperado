@@ -1,7 +1,7 @@
 """Pronóstico del retiro del siguiente día operativo.
 
 M1 (docs/02 §1): log1p(retiro) = nivel(s) + Σ efectos comunes(fecha) + Σ efectos propios contraídos(s) + ε
-  - efectos comunes estimados a nivel fecha (EV-06): día semana, inicio de mes, quincena, monto AM, BECAS día 2, evento LEEN
+  - efectos comunes estimados a nivel fecha (EV-06): día semana, inicio de mes, quincena, retiro AM previo, BECAS día 2, evento LEEN
   - efectos propios contraídos (EV-07): AM día 1, AM día 2, BECAS día 1, régimen IMPAR
   - nivel: media exponencial causal de residuos (captura tendencia/cambios de nivel)
   - cuantiles: residuos un-paso-adelante (causales) por estrato (día AM / no AM), sucursal mezclada con global
@@ -20,9 +20,15 @@ COMUNES = ["martes", "miercoles", "jueves", "viernes", "inicio_mes", "quincena",
 POS = [f"{n}_{r}" for n in ("pos01_03", "pos04_08", "pos15_19", "pos20_") for r in ("I", "P")]
 
 
+REALES = ["disp_am_retiro_ref", "stock_am_h2", "stock_am_h8", "stock_becas_h2", "stock_becas_h8"]
+
+
 # --------------------------------------------------------------------------- variables
 def variables(df: pd.DataFrame) -> pd.DataFrame:
     """Variables de calendario a partir de columnas del calendario operativo (+ evento_pe si existe)."""
+    faltan = [c for c in REALES if c not in df]
+    if faltan:
+        raise KeyError(f"Faltan {faltan}: el calendario debe pasar por panel.agregar_retiro_real")
     X = pd.DataFrame(index=df.index)
     am, b = df.disp_am.fillna(False).astype(bool), df.disp_becas.fillna(False).astype(bool)
     X["am1"] = (am & df.disp_am_primero.fillna(False).astype(bool)).astype(float)
@@ -41,10 +47,10 @@ def variables(df: pd.DataFrame) -> pd.DataFrame:
         for r in ("I", "P"):
             X[f"{nom}_{r}"] = ((dh >= lo) & (dh <= hi) & (reg == r)).astype(float)
     X["quincena"] = df.es_quincena.fillna(False).astype(float)
-    m = np.log(df.disp_am_monto.where(df.disp_am_monto > 0))
-    X["log_monto_am"] = (m - 22.5).fillna(0.0) * X.am1.add(X.am2).clip(upper=1)   # centrado aprox. (e^22.5 ≈ 5.9e9)
-    for c in ("stock_am_h2", "stock_am_h8", "stock_becas_h2", "stock_becas_h8"):
-        X[c] = df[c].astype(float).fillna(0.0) if c in df else 0.0
+    m = np.log(df.disp_am_retiro_ref.where(df.disp_am_retiro_ref > 0))     # retiro real de ciclos anteriores
+    X["log_monto_am"] = (m - 21.0).fillna(0.0) * X.am1.add(X.am2).clip(upper=1)   # centrado aprox. (e^21 ≈ 1.3e9)
+    for c in REALES[1:]:
+        X[c] = df[c].astype(float).fillna(0.0)
     X["evento_pe"] = df["evento_pe"].astype(float) if "evento_pe" in df else 0.0
     X["estrato"] = np.where((X.am1 + X.am2) > 0, "AM", "NO_AM")
     return X
@@ -90,7 +96,7 @@ class M1:
         fe = h.groupby("id_fecha").y_dm.mean()
         Xd = X.groupby(h.id_fecha)[self.cols_fecha].first().loc[fe.index]
         Xd = Xd.loc[:, Xd.std() > 0]
-        # Mínimos cuadrados acotados + ridge ligero: los saldos pendientes de dispersión solo pueden AUMENTAR el
+        # Mínimos cuadrados acotados + ridge ligero: las señales de retiro reciente solo pueden AUMENTAR el
         # retiro (β >= 0, restricción física); sin ella, la confusión con el nivel produce signos imposibles.
         from scipy.optimize import lsq_linear
         A = np.column_stack([np.ones(len(Xd)), Xd.values])
@@ -233,9 +239,9 @@ class M1:
         if self.dev_letras is not None and "llave_letras" in objetivo:
             C["letras_propias"] = self.dev_letras.reindex(pd.MultiIndex.from_arrays([s, objetivo.llave_letras.values])).fillna(0.0).values
         nombres = {"am1": "dia_letra_AM", "am2": "segundo_dia_AM", "becas1": "dia_letra_BECAS", "becas2": "segundo_dia_BECAS",
-                   "stock_am_h2": "saldo_pendiente_AM_corto", "stock_am_h8": "saldo_pendiente_AM_largo",
-                   "stock_becas_h2": "saldo_pendiente_BECAS_corto", "stock_becas_h8": "saldo_pendiente_BECAS_largo",
-                   "log_monto_am": "monto_AM_dispersado", "evento_pe": "evento_LEEN_LCEN", "quincena": "quincena"}
+                   "stock_am_h2": "retiro_reciente_AM_corto", "stock_am_h8": "retiro_reciente_AM_largo",
+                   "stock_becas_h2": "retiro_reciente_BECAS_corto", "stock_becas_h8": "retiro_reciente_BECAS_largo",
+                   "log_monto_am": "retiro_AM_ciclos_previos", "evento_pe": "evento_LEEN_LCEN", "quincena": "quincena"}
         out = []
         for i in range(len(C)):
             row = C.iloc[i]

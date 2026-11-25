@@ -22,10 +22,16 @@ Escala log: `y = log1p(retiro)`. Para la sucursal *s* en el día objetivo *d*:
   - β̂_k(s) = w·b_k(s) + (1−w)·β_k;
   - w = τ²_k / (τ²_k + se²_k(s));
   - τ_k se reestima en cada corrida, como en la EV-07.
-- **Efectos comunes** (estimados a nivel fecha): día de la semana, días hábiles 1–3 del mes, quincena, log del monto AM dispersado (dentro de días AM), día 2 de BECAS, evento emergente activo con su dosis (EV-08; queda solo si pasa la ablación).
+- **Efectos comunes** (estimados a nivel fecha): día de la semana, días hábiles 1–3 del mes, quincena, log del retiro AM real de los pagos anteriores de las mismas letras (dentro de días AM; desde 1.2.0), día 2 de BECAS, evento emergente activo con su dosis (EV-08; queda solo si pasa la ablación).
 - **Nivel** = mediana ponderada exponencial (vida media configurable; se elige en el torneo) del residuo de los últimos días válidos después de quitar el calendario. Captura la tendencia y los cambios de nivel sin reestimar todo.
 - **Cuantiles (P10, P50, P90, P95):** calibración conformal sobre los residuos fuera de muestra recientes, estratificada por tipo de día (AM / no AM, porque la varianza difiere). Los residuos de la sucursal se mezclan con los de su grupo según el número de observaciones.
 - **Salidas:** media, P10, P50, P90, P95, P(retiro > P95 del perfil) = probabilidad de retiro extraordinario, y ancho relativo (P90 − P10)/P50.
+
+**Tamaño del pago (desde 1.2.0).** `DISPERSION` es solo calendario (fecha, programa, letra, primer o segundo día): sus montos son proyectados y no se leen. Con `panel.agregar_retiro_real`, usando únicamente fechas anteriores a cada día:
+- retiro de referencia AM: por letra, mediana del retiro nacional AM en sus últimos 3 pagos; promedio de las letras del día;
+- retiro reciente AM y BECAS: retiro nacional de los días de pago anteriores, con vida media de 2 y 8 días hábiles.
+
+Se excluyen las fechas copia, parciales, duplicadas o incompletas.
 
 ## 2. Intradía y saldo
 - **Curva de fracción acumulada por corte** (9/11/13/17): mediana de la sucursal en días válidos del mismo tipo (AM / BECAS / SIN), contraída hacia la del contexto global según el número de días. Se fuerza la monotonía. Bandas: p10/p90 empíricos de la fracción.

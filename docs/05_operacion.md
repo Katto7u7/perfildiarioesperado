@@ -1,4 +1,4 @@
-# Operación diaria, monitoreo y criterios de operación (versión 1.1.0)
+# Operación diaria, monitoreo y criterios de operación (versión 1.2.0)
 
 Carpeta que se ejecuta: `VELOCIDADES/perfil_retiro_produccion/`. Intérprete: `C:/ProgramData/anaconda3/python.exe`.
 
@@ -93,6 +93,7 @@ No están automatizados (se revisan a mano en la recalibración mensual): valide
 - Datos que mejorarían el sistema: lista oficial de sucursales que abren a las 8:00 (hoy inferida); hora exacta de extracción de cada corte; cierre real de los eventos emergentes; calendario de SEMBRANDO, LEEN y otros programas.
 
 ## 8. Registro de cambios
+- **1.2.0 (2026-11-25).** Cambia el modelo: `DISPERSION` queda solo como calendario y el tamaño de cada pago se mide con retiro real (docs/02). Fuentes seleccionables por `.env` (§3.1). La semilla `out/semilla_errores.parquet` sigue siendo la de 1.1.0: no programar esta versión en la corrida nocturna sin revisar el backtest comparativo y regenerar la semilla.
 - **1.1.0 (2026-11-23), revisión de producción.** El modelo estadístico no cambia.
   1. Cómputo verificado (doble cómputo bit a bit, EV-16).
   2. M2 entrenado en cada cómputo con un corte determinista (primer día operativo del mes, como en el backtest). Antes dependía de qué corrida del mes se ejecutara primero, y reprocesar un día anterior podía usar datos futuros.

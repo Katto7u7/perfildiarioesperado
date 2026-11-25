@@ -60,12 +60,12 @@ def calendario():
 def panel_completo(desde=20240101, usar_cache=True):
     """Panel limpio 2024-01 -> última fecha, con detectores automáticos de calidad (EV-01)."""
     from perfil_retiro.calidad import detectar_copias, detectar_parciales, mov_diario
-    from perfil_retiro.panel import calendario_operativo, construir_panel
+    from perfil_retiro.panel import construir_panel
     cache = RAIZ / "out" / "cache" / f"panel_{desde}.parquet"
     if usar_cache and cache.exists():
         return pd.read_parquet(cache)
     mv, mon = fuente("movimientos_diario"), fuente("monitoreo_cortes")
-    cal = calendario_operativo(fuente("fecha"), fuente("dispersion"))
+    cal = calendario_op()
     dia = mov_diario(mv)
     cop = detectar_copias(dia)
     par = detectar_parciales(dia, mon[mon.hora_corte == 1700])
@@ -77,5 +77,14 @@ def panel_completo(desde=20240101, usar_cache=True):
 
 
 def calendario_op():
-    from perfil_retiro.panel import calendario_operativo
-    return calendario_operativo(fuente("fecha"), fuente("dispersion"))
+    from perfil_retiro.calidad import detectar_copias, detectar_parciales, mov_diario
+    from perfil_retiro.panel import agregar_retiro_real, calendario_operativo
+    ini = int(CFG["historia"]["inicio_util"])
+    mv, mon, disp = fuente("movimientos_diario"), fuente("monitoreo_cortes"), fuente("dispersion")
+    mv = mv[mv.id_fecha >= ini]                    # misma historia que usa el pipeline
+    dia = mov_diario(mv)
+    cop = detectar_copias(dia)
+    par = detectar_parciales(dia, mon[mon.hora_corte == 1700])
+    excluir = (set(cop.id_fecha) | set(par[par.parcial].id_fecha) | set(CFG["calidad"]["fechas_copia"])
+               | set(CFG["calidad"]["fechas_parciales"]))
+    return agregar_retiro_real(calendario_operativo(fuente("fecha"), disp), disp, mv, excluir=excluir)

@@ -54,6 +54,7 @@
 |---|---|---|
 | 2026-11-18 | Versión inicial | — |
 | 2026-11-18 | M1 pasa a nivel por sucursal × régimen y posición en el mes por régimen | Diagnóstico en desarrollo: en meses IMPAR casi todos los días son de letra AM, así que el régimen y el día AM se confunden y el nivel sale sesgado (sesgo −45% en la 1ª semana de 2025-12). Es consistente con EV-09 |
+| 2026-11-25 (1.2.0) | El tamaño del pago y las señales de arrastre pasan de `DISPERSION.monto` al retiro real de MOVIMIENTOS (solo fechas anteriores) | Decisión del usuario: `DISPERSION` es un calendario proyectado que casi nunca se cumple. El holdout ya fue visto: la comparación no es una validación virgen |
 | 2026-11-18 | Variables nuevas de "saldo pendiente de dispersión" (AM/BECAS, vida media de 2 y 8 días hábiles) | El retiro de una dispersión continúa días después (arrastre de AM; BECAS desfasado de su calendario) |
 | 2026-11-18 | Regresión a nivel fecha acotada (β ≥ 0 en saldos pendientes y días de letra) + ridge 0.01 | Sin la restricción aparecía β < 0 en el saldo AM (físicamente imposible) por confusión con el nivel |
 | 2026-11-18 | Desviación propia por combinación de letras, contraída (n/(n+2)) | El método del notebook demostró que la respuesta a cada letra es propia de cada sucursal |

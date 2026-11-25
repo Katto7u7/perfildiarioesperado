@@ -1,7 +1,8 @@
 # Configuración del sistema de perfil de retiro por sucursal.
 # Rutas relativas a la carpeta prod_perfil_retiro/. Sin credenciales (van en .env).
 
-version_modelo: "1.1.0"          # 1.1.0 (2026-11-23): M2 con corte de entrenamiento determinista, conformal = método validado,
+version_modelo: "1.2.0"          # 1.2.0 (2026-11-25): el tamaño de pago sale del retiro real; DISPERSION solo calendario.
+                                 # 1.1.0 (2026-11-23): M2 con corte de entrenamiento determinista, conformal = método validado,
                                  # compuerta MONITOREO@1700, horario de verano exacto (ver docs/05 §8)
 
 fuentes:

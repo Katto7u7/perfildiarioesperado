@@ -54,30 +54,28 @@ def test_consulta_sin_version_postgres_da_error_claro(env):
 
 
 def _disp(filas):
-    return pd.DataFrame(filas, columns=["id_fecha", "id_programa", "letra", "is_second_letterday", "monto",
-                                        "numero_beneficiarios"])
+    return pd.DataFrame(filas, columns=["id_fecha", "id_programa", "letra", "is_second_letterday"])
 
 
 def test_agrupar_dispersion_una_fila_por_fecha_y_programa():
-    raw = _disp([(20260318, 1, "O", 0, 30.0, 3), (20260318, 1, "N", 0, 20.0, 2), (20260318, 1, "N", 0, 20.0, 2),
-                 (20260318, 1, "R", 1, 10.0, 1), (20260318, 2, "A", 0, 5.0, 1), (20260319, 3, None, 0, 1.0, 1)])
+    raw = _disp([(20260318, 1, "O", 0), (20260318, 1, "N", 0), (20260318, 1, "N", 0), (20260318, 1, "R", 1),
+                 (20260318, 2, "A", 0), (20260319, 3, None, 0)])
     g = sources.agrupar_dispersion(raw)
     assert list(zip(g.id_fecha, g.id_programa)) == [(20260318, 1), (20260318, 2), (20260319, 3)]
     am = g.iloc[0]
     assert (am.letras, am.letras_segundo, am.n_letras) == ("N,O", "R", 3)
-    assert (am.primero, am.segundo, am.monto, am.numero_beneficiarios) == (1, 1, 30.0, 3)
+    assert (am.primero, am.segundo) == (1, 1)
     nulo = g.iloc[2]
     assert (nulo.letras, nulo.n_letras) == ("?", 0)
 
 
 def test_agrupar_dispersion_no_depende_del_orden():
-    raw = _disp([(20260318, 1, "O", 0, 30.0, 3), (20260318, 1, "N", 0, 20.0, 2)])
+    raw = _disp([(20260318, 1, "O", 0), (20260318, 1, "N", 0)])
     pd.testing.assert_frame_equal(sources.agrupar_dispersion(raw), sources.agrupar_dispersion(raw.iloc[::-1]))
 
 
 def test_letras_por_fecha_con_dispersion_agrupada():
-    raw = _disp([(20260318, 1, "O", 0, 1.0, 1), (20260318, 1, "N", 1, 1.0, 1), (20260318, 2, "A", 0, 1.0, 1),
-                 (20260319, 3, "Z", 0, 1.0, 1)])
+    raw = _disp([(20260318, 1, "O", 0), (20260318, 1, "N", 1), (20260318, 2, "A", 0), (20260319, 3, "Z", 0)])
     s = letras_por_fecha(sources.agrupar_dispersion(raw))
     assert s.to_dict() == {20260318: "AM:N*2|AM:O*|BE:A*"}
 

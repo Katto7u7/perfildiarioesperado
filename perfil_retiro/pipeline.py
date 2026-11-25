@@ -18,7 +18,7 @@ from .backtest import CORTES, cdf_desde_cuantiles, eventos_pe, forma_esperada, l
 from .calidad import detectar_copias, detectar_parciales, mov_diario
 from .contrato import validar_corte, validar_perfil
 from .modelo import M1, QUANTS, baseline_nb
-from .panel import calendario_operativo, construir_panel
+from .panel import agregar_retiro_real, calendario_operativo, construir_panel
 from .perfil import calcular_perfil
 from .persistencia import (ahora_utc, conectar_destino, conectar_dev, escribir, id_run, respaldar, ruta_destino,
                            sucursales_catalogo)
@@ -188,7 +188,8 @@ def _calcular(cfg, fecha_corte: int, errores_semilla: pd.DataFrame | None, db_pa
     calidad_d = "COPIA" if fecha_corte in copias else "PARCIAL" if fecha_corte in parciales else "OK"
     if calidad_d != "OK":
         raise CorridaAbortada(f"Día de corte {fecha_corte} con calidad {calidad_d}: se reporta y no se publica")
-    # 3 panel
+    # 3 panel (el tamaño de cada pago se mide con retiro real hasta el corte, no con montos de DISPERSION)
+    cal = agregar_retiro_real(cal, disp, mv, excluir=copias | parciales)
     p = construir_panel(mv, mon, cal, cfg, fecha_corte, copias=copias, parciales=parciales)
     valid = p[p.valido].copy()
     letras = letras_por_fecha(disp)
