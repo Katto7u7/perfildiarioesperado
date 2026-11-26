@@ -15,6 +15,17 @@ def mov_diario(mv: pd.DataFrame) -> pd.DataFrame:
     return g
 
 
+def fechas_anomalas(mv: pd.DataFrame, fechas_operativas: set, minimo: float = 0.5) -> dict:
+    """Aviso sobre la historia de MOVIMIENTOS: fechas con la mayoría de llaves repetidas o con muy pocas sucursales
+    frente a la mediana de las 11 fechas operativas vecinas. Solo informa; no excluye ni corrige."""
+    m = mv[mv.id_fecha.isin(fechas_operativas)]
+    dup = (m.n_filas > 1).groupby(m.id_fecha).mean()
+    n = m.groupby("id_fecha").id_sucursal.nunique()
+    vecinas = n.rolling(11, center=True, min_periods=3).median()
+    return {"duplicadas": [int(f) for f in dup[dup > 0.5].index],
+            "incompletas": [int(f) for f in n[n < minimo * vecinas].index]}
+
+
 def detectar_copias(dia: pd.DataFrame, umbral: float = 0.99, min_suc: int = 100) -> pd.DataFrame:
     """Fecha cuyo vector sucursal->retiro es idéntico (>= umbral) al de la fecha cargada anterior."""
     piv = dia.pivot(index="id_sucursal", columns="id_fecha", values="retiro")

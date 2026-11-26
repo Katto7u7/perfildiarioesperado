@@ -32,21 +32,25 @@ def _log(nivel="INFO"):
 
 def check_sources(cfg, fecha_corte):
     """Diagnóstico de insumos del día de corte, sin escribir nada."""
-    from .calidad import detectar_parciales, mov_diario
+    from .calidad import detectar_parciales, fechas_anomalas, mov_diario
+    from .panel import calendario_operativo
     from .pipeline import cobertura_monitoreo_1700
-    from .sources import extraer
+    from .sources import extraer, fuente_activa
     mv = extraer(cfg, "movimientos_diario", fecha_corte, fecha_corte, usar_cache=False)
     mon = extraer(cfg, "monitoreo_cortes", fecha_corte, fecha_corte, usar_cache=False)
     disp = extraer(cfg, "dispersion", usar_cache=False)
+    cal = calendario_operativo(extraer(cfg, "fecha", usar_cache=False), disp)
+    hist = extraer(cfg, "movimientos_diario", int(cfg["historia"]["inicio_util"]), fecha_corte, usar_cache=False)
     dia = mov_diario(mv)
     par = detectar_parciales(dia, mon[mon.hora_corte == 1700])
-    rep = {"fecha_corte": fecha_corte, "movimientos_filas": len(mv), "sucursales_con_retiro": int((dia.retiro > 0).sum()),
+    rep = {"fuente": fuente_activa(), "fecha_corte": fecha_corte, "movimientos_filas": len(mv), "sucursales_con_retiro": int((dia.retiro > 0).sum()),
            "monitoreo_cortes": sorted(mon.hora_corte.unique().tolist()),
            "cobertura_monitoreo_1700": round(cobertura_monitoreo_1700(dia, mon[mon.hora_corte == 1700]), 4),
            "minimo_requerido": cfg["calidad"].get("min_cobertura_monitoreo_1700", 0.90),
            "parcial": bool(par.parcial.any()) if len(par) else None,
            "razon_mediana_mov_mon": float(par.r_mediana.iloc[0]) if len(par) else None,
-           "dispersion_cargada_hasta": int(disp.id_fecha.max())}
+           "dispersion_cargada_hasta": int(disp.id_fecha.max()),
+           "movimientos_historia_anomala": fechas_anomalas(hist, set(cal[cal.operativo].id_fecha))}
     print(json.dumps(rep, indent=2, ensure_ascii=False))
     return 0
 

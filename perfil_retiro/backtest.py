@@ -16,10 +16,14 @@ CORTES = [900, 1100, 1300, 1700]
 
 
 def letras_por_fecha(disp: pd.DataFrame) -> pd.Series:
-    d = disp[disp.id_programa.isin([1, 2])].copy()
-    d["tok"] = d.id_programa.map({1: "AM", 2: "BE"}) + ":" + d.letra.fillna("?") + ("*" if True else "")
-    d["tok"] = np.where(d.is_second_letterday == 1, d.tok + "2", d.tok)
-    return d.groupby("id_fecha").tok.apply(lambda s: "|".join(sorted(set(s))))
+    d = disp[disp.id_programa.isin([1, 2])]
+    filas = []
+    for r in d.itertuples(index=False):
+        prog = "AM" if r.id_programa == 1 else "BE"
+        for letras, sufijo in ((r.letras, "*"), (r.letras_segundo, "*2")):
+            filas += [(r.id_fecha, f"{prog}:{x}{sufijo}") for x in letras.split(",") if x]
+    t = pd.DataFrame(filas, columns=["id_fecha", "tok"])
+    return t.groupby("id_fecha").tok.apply(lambda s: "|".join(sorted(set(s))))
 
 
 def eventos_pe(pe: pd.DataFrame, corte: int) -> pd.DataFrame:

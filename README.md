@@ -1,4 +1,4 @@
-# perfil_retiro_produccion — Perfil de retiro y pronóstico diario por sucursal (versión 1.1.0)
+# perfil_retiro_produccion — Perfil de retiro y pronóstico diario por sucursal (versión 1.2.0)
 
 Copia de producción de `prod_perfil_retiro/` (revisión del 2026-11-23). **Esta es la carpeta que debe ejecutarse.**
 La guía completa (qué hace, cómo se ejecuta, condiciones, limitaciones) está en `LEEME_PERFIL_RETIRO.txt`.
@@ -10,7 +10,7 @@ sql/                      consultas de extracción (:desde, :hasta = fecha de co
 perfil_retiro/
   sources.py              extracción de solo lectura + huella de insumos
   calidad.py              detección de días copiados y cargas parciales
-  panel.py                calendario operativo (cierres bancarios, quincenas, dispersión, saldos pendientes) + panel limpio
+  panel.py                calendario operativo (cierres bancarios, quincenas, calendario de dispersión, retiro reciente) + panel limpio
   modelo.py               M1 (nivel por régimen, efectos contraídos, letras propias) y métodos de referencia B0/B1/B2/NB
   m2_gbm.py               M2 gradient boosting
   backtest.py             simulación histórica día a día sin fuga (investigación)
@@ -39,3 +39,17 @@ C:/ProgramData/anaconda3/python.exe -m perfil_retiro.monitoreo
 ```
 Las bases fuente se abren en solo lectura. `run-daily` escribe en la base destino de `config.yaml` (con respaldo previo)
 y, si `destino.postgres.habilitado` es `true`, vuelca a Postgres.
+
+## Origen de las fuentes (`.env`)
+Copiar `.env.example` a `.env` y elegir `FUENTE`:
+
+| FUENTE | De dónde se leen | Consultas |
+|---|---|---|
+| `sqlite` (por defecto) | archivos `.db` de `config.yaml` → `fuentes` | `sql/*.sql` |
+| `postgres` | servidor definido por `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` | `sql/fuentes_pg/*.sql` |
+
+- Solo cambia la **lectura**. El destino sigue siendo SQLite y su volcado a Postgres (`destino` en `config.yaml`).
+- Una variable de entorno `FUENTE` gana sobre el `.env`.
+- Las consultas que solo usan `evidencias/` (saldos, retiros, gestionada, prediccion_ds, politica_visita, ingvar_monto)
+  no tienen versión Postgres; varios scripts de `evidencias/` además abren los `.db` directamente.
+- `check-sources` informa la fuente activa y las fechas de MOVIMIENTOS duplicadas o incompletas (solo avisa).

@@ -21,8 +21,8 @@ v = v[v.id_sucursal.isin(k[k >= 120].index)]
 v["y_dm"] = v.y - v.groupby("id_sucursal").y.transform("mean")
 fe = v.groupby("id_fecha").agg(ef=("y_dm", "mean"), n=("y_dm", "size")).reset_index()
 cal_cols = ["dow", "regimen", "es_quincena", "dias_al_fin_mes", "dia_habil_mes", "post_cierre", "post_feriado",
-            "pre_feriado", "pos_quincena", "disp_am", "disp_am_segundo", "disp_am_primero", "disp_am_monto",
-            "disp_becas", "disp_becas_segundo", "disp_becas_primero", "disp_becas_monto", "disp_otro", "mes", "anio"]
+            "pre_feriado", "pos_quincena", "disp_am", "disp_am_segundo", "disp_am_primero", "disp_am_retiro_ref",
+            "disp_becas", "disp_becas_segundo", "disp_becas_primero", "disp_otro", "mes", "anio"]
 fe = fe.merge(v.drop_duplicates("id_fecha")[["id_fecha"] + cal_cols], on="id_fecha")
 fe = fe.sort_values("id_fecha").reset_index(drop=True)
 
@@ -46,7 +46,7 @@ def disenio(df, con_regimen=True, con_monto=False):
     if con_regimen:
         X["regimen_impar"] = (df.regimen == "IMPAR").astype(float)
     if con_monto:
-        m = np.log(df.disp_am_monto.where(df.disp_am_monto > 0))
+        m = np.log(df.disp_am_retiro_ref.where(df.disp_am_retiro_ref > 0))
         X["log_monto_am_c"] = (m - m.mean()).fillna(0.0)
     t = (pd.to_datetime(df.id_fecha.astype(str)) - pd.Timestamp("2025-06-02")).dt.days / 365.25
     X["tendencia_anual"] = t
